@@ -112,7 +112,7 @@ for i=1:slength(X.samp)
     X.samp.hist(i,:) = histc(X.bin.ct(:,i),X.hist.bin);
 end
 X.samp.cf = cumsum(X.samp.hist,2)/slength(X.bin);
-save(strcat(outputdir,"/tiles_200_data.mat"),'X');
+save(strcat(outputdir,"/tiles_200_data.mat"),'X','-v7.3');
 
 % Peak selection for target
 damp=16; thresh=1; maxgap=3;
@@ -175,7 +175,7 @@ samps_to_cluster = [rtarget, rnontarget]; pixels_to_cluster = find(ismember(X.pi
 randinit(1234);
 X.peak.(['clust',num2str(k)]) = kmeansd(double(1e-5+X.peak.dat(:,pixels_to_cluster)),k,'distance','cosine','maxiter',1000);
 X = rmfield(X,'bin'); X.peak.dat=single(X.peak.dat); X.peak.raw=single(X.peak.raw);
-save(strcat(outputdir,"/tiles_200_data_peak.mat"),'X');
+save(strcat(outputdir,"/tiles_200_data_peak.mat"),'X','-v7.3');
 samps_to_show = [rtarget, rnontarget, rcontrol]';
 neighborhood_to_show = 10000; clustfld = ['clust',num2str(k)];
 X.peak = sort_struct(X.peak,{clustfld,'avgct_rb'},[1 -1]);
