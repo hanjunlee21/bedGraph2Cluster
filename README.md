@@ -5,40 +5,40 @@ MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data
 | ------------- | ------------- |
 | R2018b | 9.5 |
 
+```MATLAB
+bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
+```
+<br/>
+
 ## Required arguments
-    bedGraphs_Target: path(s) to target bedGraph files (included during clustering)
-        possible values: string,
-                         character array,
-                         matrix of strings,
-                         matrix of character arrays
-    bedGraphs_Nontarget: path(s) to nontarget bedGraph files (excluded during clustering)
-        possible values: string,
-                         character array,
-                         matrix of strings,
-                         matrix of character arrays
-    bedGraphs_Control: path(s) to control bedGraph files
-        possible values: string,
-                         character array,
-                         matrix of strings,
-                         matrix of character arrays
-    BED_Bin: path to bin BED file
-        possible values: string,
-                         character array
-    Outdir: path to output directory
-        possible values: string,
-                         character array
-    k: number of clusters
-        possible values: integer
+**bedGraphs_Target (string)**: comma-delimited list of bedGraph files to be included during *k*-means clustering
+
+**bedGraphs_Nontarget (string)**: comma-delimited list of bedGraph files to be excluded during *k*-means clustering
+
+**bedGraphs_Control (string)**: comma-delimited list of bedGraph files to be used as controls for peak calling
+
+**Outdir (string)**: path to the output directory
+
+**BED_Bin (string)**: path to the BED file used for binned bedGraph generation
+
+**k (string)**: number of clusters during *k*-means clustering
+
+**QNorm (string)**: whether to perform QNorm normalization ("true": QNorm, "false": CPM)
 
 ## Optional arguments
-    QNorm: whether to perform the QNorm normalization method
-        possible values: "true",
-                         "false",
-                         'true',
-                         'false',
-                         true,
-                         false
-        caution: leaving QNorm empty would run bedGraph2Cluster
-                 with QNorm normalization by default
-        caution: opting for false would run bedGraph2Cluster
-                 with CPM normalization method instead
+**Workingdir (string)**: path to the output directory
+
+<br/>
+
+# Examplary usage
+## with license for MATLAB
+```MATLAB
+bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true")
+```
+## without license for MATLAB
+[![PyPI version](https://badge.fury.io/py/run_matlab.svg)](https://badge.fury.io/py/run_matlab)
+```shell
+pip3 insatll run_matlab
+run_matlab install -v R2018b -r 9.5
+run_matlab run -v R2018b -r 9.5 bedGraph2Cluster bedGraph2Cluster bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph test_output bed/hg19.200bp.bed 8 true $PWD
+```
