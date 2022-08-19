@@ -1,46 +1,6 @@
-function bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, BED_Bin, Outdir, k, QNorm)
+function bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
 %% bedGraph2Cluster
-% e.g., bedGraph2Cluster(["bam/RB.WT.filtered.bedgraph";"bam/RB.dCDK.filtered.bedgraph"],["bam/E2F1.filtered.bedgraph";"bam/CTCF.shSCR.filtered.bedgraph";"bam/c-Jun.shSCR.filtered.bedgraph"],["bam/INPUT.WT.filtered.bedgraph";"bam/INPUT.dCDK.filtered.bedgraph"],"bed/hg19.200bp.bed","test_output",8)
-%
-% Required arguments
-%     bedGraphs_Target: path(s) to target bedGraph files (included during clustering)
-%         possible values: string,
-%                          character array,
-%                          matrix of strings,
-%                          matrix of character arrays
-%     bedGraphs_Nontarget: path(s) to nontarget bedGraph files (excluded during clustering)
-%         possible values: string,
-%                          character array,
-%                          matrix of strings,
-%                          matrix of character arrays
-%     bedGraphs_Control: path(s) to control bedGraph files
-%         possible values: string,
-%                          character array,
-%                          matrix of strings,
-%                          matrix of character arrays
-%     BED_Bin: path to bin BED file
-%         possible values: string,
-%                          character array
-%
-%     Outdir: path to output directory
-%         possible values: string,
-%                          character array
-%
-%     k: number of clusters
-%         possible values: integer
-%
-% Optional arguments
-%     QNorm: whether to perform the QNorm normalization method
-%         possible values: "true",
-%                          "false",
-%                          'true',
-%                          'false',
-%                          true,
-%                          false
-%         caution: leaving QNorm empty would run bedGraph2Cluster
-%                  with QNorm normalization by default
-%         caution: opting for false would run bedGraph2Cluster
-%                  with CPM normalization method instead
+% e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true")
 %
 %% MIT License
 %
@@ -61,31 +21,30 @@ function bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Contr
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
 
-%% Default normalization
-% Default normalization method is QNorm
-
-if ~exist('QNorm','var')
+%% Normalization
+if strcmp(convertCharsToStrings(QNorm),"true")
     QNorm = true;
-elseif ~islogical(QNorm)
-    if strcmp(convertCharsToStrings(QNorm),"true")
-        QNorm = true;
-    elseif strcmp(convertCharsToStrings(QNorm),"false")
-        QNorm = false;
-    else
-        error('QNorm has an inappropriate value')
-    end
+elseif strcmp(convertCharsToStrings(QNorm),"false")
+    QNorm = false;
+else
+    error('QNorm has an inappropriate value')
+end
+
+if ~exist('Workingdir','var')
+    Workingdir = strcat(convertCharsToStrings(pwd),"/");
+else
+    Workingdir = strcat(tostringmatrix(Workingdir),"/");
 end
 
 %% Reading input files
 % Validating paths
-target = tostringmatrix(bedGraphs_Target);
-nontarget = tostringmatrix(bedGraphs_Nontarget);
-control = tostringmatrix(bedGraphs_Control);
-bin = tostringmatrix(BED_Bin);
-outputdir = tostringmatrix(Outdir);
-if ~isnumeric(k)
-    error('k has to be a numeric value')
-elseif k <= 0
+target = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Target),',').'));
+nontarget = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Nontarget),',').'));
+control = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
+bin = strcat(Workingdir, tostringmatrix(BED_Bin));
+outputdir = strcat(Workingdir, tostringmatrix(Outdir));
+k = str2double(k);
+if k <= 0
     error('k has to be a positive integer')
 end
 areallpathsvalid(target);
