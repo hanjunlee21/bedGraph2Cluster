@@ -1,6 +1,10 @@
 # bedGraph2Cluster
 MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data
 
+| MATLAB_VERSION  | RUNTIME_VERSION |
+| ------------- | ------------- |
+| R2018b | 9.5 |
+
 ## Required arguments
     bedGraphs_Target: path(s) to target bedGraph files (included during clustering)
         possible values: string,
