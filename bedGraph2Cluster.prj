@@ -3,15 +3,15 @@
     <param.appname>bedGraph2Cluster</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>1.4</param.version>
-    <param.authnamewatermark />
-    <param.email />
-    <param.company />
-    <param.summary />
-    <param.description />
+    <param.version>1.5</param.version>
+    <param.authnamewatermark>Hanjun Lee</param.authnamewatermark>
+    <param.email>hanjun@mit.edu</param.email>
+    <param.company>Massachusetts Institute of Technology</param.company>
+    <param.summary>MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data</param.summary>
+    <param.description>MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data</param.description>
     <param.screenshot />
     <param.guid />
-    <param.installpath.string>/bedGraph2Cluster/</param.installpath.string>
+    <param.installpath.string>/Massachusetts_Institute_of_Technology/bedGraph2Cluster/</param.installpath.string>
     <param.installpath.combo>option.installpath.user</param.installpath.combo>
     <param.logo />
     <param.install.notes />
@@ -29,10 +29,10 @@ MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa64:MR/v95/sys/openg
 If it is defined, set it to the following:
 
 ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa64:MR/v95/sys/opengl/lib/glnxa64</param.target.install.notes>
-    <param.intermediate>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing</param.intermediate>
-    <param.files.only>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_redistribution_files_only</param.files.only>
-    <param.output>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_redistribution</param.output>
-    <param.logdir>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4</param.logdir>
+    <param.intermediate>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing</param.intermediate>
+    <param.files.only>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_redistribution_files_only</param.files.only>
+    <param.output>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_redistribution</param.output>
+    <param.logdir>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5</param.logdir>
     <param.enable.clean.build>false</param.enable.clean.build>
     <param.user.defined.mcr.options />
     <param.target.type>subtarget.standalone</param.target.type>
@@ -53,11 +53,6 @@ ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa
     <unset>
       <param.icon />
       <param.icons />
-      <param.authnamewatermark />
-      <param.email />
-      <param.company />
-      <param.summary />
-      <param.description />
       <param.screenshot />
       <param.guid />
       <param.installpath.string />
@@ -89,10 +84,10 @@ ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa
     <fileset.package />
     <fileset.depfun />
     <build-deliverables>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing" name="bedGraph2Cluster" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing/bedGraph2Cluster</file>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing" name="splash.png" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing/splash.png</file>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing" name="readme.txt" optional="true">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing/readme.txt</file>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing" name="run_bedGraph2Cluster.sh" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.4/for_testing/run_bedGraph2Cluster.sh</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing" name="bedGraph2Cluster" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing/bedGraph2Cluster</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing" name="run_bedGraph2Cluster.sh" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing/run_bedGraph2Cluster.sh</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing" name="readme.txt" optional="true">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing/readme.txt</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing" name="splash.png" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.5/for_testing/splash.png</file>
     </build-deliverables>
     <workflow />
     <matlab>

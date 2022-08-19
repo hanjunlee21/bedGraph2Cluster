@@ -1,7 +1,19 @@
 function bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
 %% bedGraph2Cluster
 % e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true")
+% 
+% Required arguments
+%     bedGraphs_Target (string): comma-delimited list of bedGraph files to be included during k-means clustering
+%     bedGraphs_Nontarget (string): comma-delimited list of bedGraph files to be excluded during k-means clustering
+%     bedGraphs_Control (string): comma-delimited list of bedGraph files to be used as controls for peak calling
+%     Outdir (string): path to the output directory
+%     BED_Bin (string): path to the BED file used for binned bedGraph generation
+%     k (string): number of clusters during k-means clustering
+%     QNorm (string): whether to perform QNorm normalization ("true": QNorm, "false": CPM)
 %
+% Optional arguments 
+%     Workingdir (string): path to the output directory
+% 
 %% MIT License
 %
 % Copyright (c) 2022 Hanjun Lee (MIT/Broad/MGH), Michael S. Lawrence (Broad/MGH)
@@ -100,7 +112,7 @@ for i=1:slength(X.samp)
     X.samp.hist(i,:) = histc(X.bin.ct(:,i),X.hist.bin);
 end
 X.samp.cf = cumsum(X.samp.hist,2)/slength(X.bin);
-save(strcat(outdir,"/tiles_200_data.mat"),'X');
+save(strcat(outputdir,"/tiles_200_data.mat"),'X');
 
 % Peak selection for target
 damp=16; thresh=1; maxgap=3;
@@ -163,7 +175,7 @@ samps_to_cluster = [rtarget, rnontarget]; pixels_to_cluster = find(ismember(X.pi
 randinit(1234);
 X.peak.(['clust',num2str(k)]) = kmeansd(double(1e-5+X.peak.dat(:,pixels_to_cluster)),k,'distance','cosine','maxiter',1000);
 X = rmfield(X,'bin'); X.peak.dat=single(X.peak.dat); X.peak.raw=single(X.peak.raw);
-save(strcat(outdir,"/tiles_200_data_peak.mat"),'X');
+save(strcat(outputdir,"/tiles_200_data_peak.mat"),'X');
 samps_to_show = [rtarget, rnontarget, rcontrol]';
 neighborhood_to_show = 10000; clustfld = ['clust',num2str(k)];
 X.peak = sort_struct(X.peak,{clustfld,'avgct_rb'},[1 -1]);
@@ -179,7 +191,7 @@ end
 image(img);set(gca,'ydir','rev','position',[0.135 0.025 0.85 0.97]); xlim(0.5+[0 size(dat,2)]);ylim(0.5+[0 size(dat,1)]);
 xlabels_by_group(X.peak.(clustfld));ylabels_by_group(X.samp.name(X.pixel.samp(pixels_to_show)));
 w=12;h=7;set(gcf,'papersize',[w h],'paperposition',[0.2 0.2 w-0.4 h-0.4]);
-print_to_file(strcat(outdir,"/clustering_heatmap.pdf"));
+print_to_file(strcat(outputdir,"/clustering_heatmap.pdf"));
 
 end
 
