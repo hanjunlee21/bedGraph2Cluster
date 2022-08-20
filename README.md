@@ -33,12 +33,13 @@ bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, Outdi
 # Examplary usage
 ## with license for MATLAB
 ```MATLAB
-bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true")
+bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
 ```
 ## without license for MATLAB
 [![PyPI version](https://badge.fury.io/py/run_matlab.svg)](https://badge.fury.io/py/run_matlab)
 ```shell
 pip3 insatll run_matlab
 run_matlab install -v R2018b -r 9.5
+git clone https://github.com/hanjunlee21/bedGraph2Cluster
 run_matlab run -v R2018b -r 9.5 bedGraph2Cluster bedGraph2Cluster bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph test_output bed/hg19.200bp.bed 8 true $PWD
 ```
