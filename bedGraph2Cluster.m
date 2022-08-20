@@ -1,6 +1,6 @@
 function bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
 %% bedGraph2Cluster
-% e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true")
+% e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
 % 
 % Required arguments
 %     bedGraphs_Target (string): comma-delimited list of bedGraph files to be included during k-means clustering
@@ -73,6 +73,9 @@ disp(msg)
 
 % QNorm normalization
 X.samp = struct;
+samp_names = [target; nontarget; control];
+X.samp.name = cell(size(samp_names,1),1);
+for i = 1:size(samp_names,1), X.samp.name{i,1} = convertStringsToChars(samp_names(i,1));, end
 X.samp.totct = sum(X.bin.ct_raw,1)';
 samps_for_median_totct = [rtarget, rnontarget, rcontrol];
 X.bin.ct_norm = bsxfun(@rdivide,X.bin.ct_raw,X.samp.totct'/median(X.samp.totct(samps_for_median_totct)));
@@ -383,6 +386,58 @@ for i=1:nf
     end
     s = setfield(s,fields{i},f);
 end
+end
+
+function Y = nansub(X,idx,filler)
+if length(size(X))==2 && size(X,1)==1 && size(X,2)>1
+%   fprintf('note: converting first argument to column vector\n');
+  X = X';
+end
+if iscellstr(X) && size(X,1)==1 && size(X,2)>1
+  X=X';
+end
+if islogical(X)
+  type = 0;
+elseif isnumeric(X)
+  type = 1;
+elseif iscell(X)
+  type = 2;
+else
+  error('Unsupported array type');
+end
+if ~exist('filler','var')
+  if type==0
+    filler = false;
+  elseif type==1
+    filler = nan;
+  elseif type==2
+    filler = {''};
+  else
+    error('Inconsistent behavior with "type"');
+  end
+end
+if type==0
+  if ~islogical(filler)
+    error('Inappropriate filler for logical array');
+  end
+elseif type==1
+  if ~isnumeric(filler)
+    error('Inappropriate filler for numeric array');
+  end
+elseif type==2
+  if ischar(filler)
+    filler = {filler};
+  end
+  if ~iscell(filler)
+    error('Inappropriate filler for cell array');
+  end
+else
+  error('Inconsistent behavior with "type"');
+end
+sz = size(X); sz(1) = length(idx);
+Y = repmat(filler,sz);
+idx2 = find(~isnan(idx) & idx>=1 & idx<=length(X));
+Y(idx2,:,:,:,:,:,:,:,:) = X(idx(idx2),:,:,:,:,:,:,:,:);
 end
 
 function varargout = mf2a(varargin)
@@ -1003,6 +1058,23 @@ end
 S = order_fields_first(S,unique_keepord(flds));
 end
 
+function [u ui uj] = unique_keepord(x,varargin);
+if exist('varargin','var') && length(varargin)>=1 && ischar(varargin{1}) && (strcmpi(varargin{1},'first')|strcmpi(varargin{1},'last'))
+  error('please do not specify "first" or "last" with this function.  (default is "first")');
+end
+[u1 ui1 uj1] = unique(x,'first',varargin{:});
+[ui ord] = sort(ui1);
+u = x(ui1(ord));
+[tmp ord2] = sort(ord);
+uj = ord2(uj1);
+return
+if iscell(x)
+  if any(~strcmp(x,u(uj))) || any(~strcmp(u,x(ui))), error('unique_keepord not working properly!!!'); end
+else
+  if any(x~=u(uj)) || any(u~=x(ui)), error('unique_keepord not working properly!!!'); end
+end
+end
+
 function X = order_fields_first(varargin)
 X = orderfields_first(varargin{:});
 end
@@ -1113,3 +1185,21 @@ if size(x,2)>1
 end
 end
 
+function randinit(randseed)
+if ~exist('randseed','var'), randseed=1234; end
+rand('twister',randseed);
+randn('seed',randseed);
+end
+
+function ff
+% finish figure
+set(gca,'tickdir','out','linewidth',1.5,'xcolor',[0 0 0],'ycolor',[0 0 0],'zcolor',[0 0 0]);
+set(gcf,'color',[1 1 1]);
+end
+
+function A = num2cellstr(a);
+A = cell(length(a),1);
+for i=1:length(a)
+  A{i} = num2str(a(i));
+end
+end
