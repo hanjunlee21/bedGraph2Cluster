@@ -1,6 +1,6 @@
 function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
 %% bedGraph2Cluster
-% e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph,bam/H3K4me3.WT.filtered.bedgraph,bam/H3K4me3.dCDK.filtered.bedgraph,bam/H3K4me.WT.filtered.bedgraph,bam/H3K4me.dCDK.filtered.bedgraph,bam/H3K27ac.WT.filtered.bedgraph,bam/H3K27ac.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
+% e.g., bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
 % 
 % Required arguments
 %     bedGraphs_Peak (string): comma-delimited list of bedGraph files to be included during peak calling
@@ -51,7 +51,7 @@ end
 
 %% Reading input files
 % Validating paths
-peak = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Peak),',').'));
+peaks = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Peak),',').'));
 cluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Cluster),',').'));
 noncluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Noncluster),',').'));
 control = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
@@ -61,7 +61,7 @@ k = str2double(k);
 if k <= 0
     error('k has to be a positive integer')
 end
-areallpathsvalid(peak);
+areallpathsvalid(peaks);
 areallpathsvalid(cluster);
 areallpathsvalid(noncluster);
 areallpathsvalid(control);
@@ -72,18 +72,18 @@ disp(msg)
 
 %% Creating structure of binned coverage data
 % Creation of structure
-[X, rpeak, rcluster, rnoncluster, rcontrol] = structify(peak, cluster, noncluster, control, bin);
+[X, rpeak, rcluster, rnoncluster, rcontrol] = structify(peaks, cluster, noncluster, control, bin);
 
 % QNorm normalization
 X.samp = struct;
-samp_names = [peak; cluster; noncluster; control];
+samp_names = [peaks; cluster; noncluster; control];
 X.samp.name = cell(size(samp_names,1),1);
 for i = 1:size(samp_names,1)
     [~,samp_name,~] = fileparts(samp_names(i,1));
     X.samp.name{i,1} = convertStringsToChars(samp_name);
 end
 X.samp.totct = sum(X.bin.ct_raw,1)';
-samps_for_median_totct = [rpeak, rcluster, rnoncluster, rcontrol];
+samps_for_median_totct = [rpeak, rcontrol];
 X.bin.ct_norm = bsxfun(@rdivide,X.bin.ct_raw,X.samp.totct'/median(X.samp.totct(samps_for_median_totct)));
 X.hist.bin = [0;unique(round(geometric_series(1,2000,200)))];
 X.samp.hist_norm = nan(slength(X.samp),slength(X.hist));

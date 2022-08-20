@@ -35,7 +35,7 @@ bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGra
 # Examplary usage
 ## with license for MATLAB
 ```MATLAB
-bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph,bam/H3K4me3.WT.filtered.bedgraph,bam/H3K4me3.dCDK.filtered.bedgraph,bam/H3K4me.WT.filtered.bedgraph,bam/H3K4me.dCDK.filtered.bedgraph,bam/H3K27ac.WT.filtered.bedgraph,bam/H3K27ac.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
+bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
 ```
 ## without license for MATLAB
 [![PyPI version](https://badge.fury.io/py/run_matlab.svg)](https://badge.fury.io/py/run_matlab)
@@ -43,5 +43,5 @@ bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "b
 pip3 insatll run_matlab
 run_matlab install -v R2018b -r 9.5
 git clone https://github.com/hanjunlee21/bedGraph2Cluster
-run_matlab run -v R2018b -r 9.5 bedGraph2Cluster bedGraph2Cluster bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph,bam/H3K4me3.WT.filtered.bedgraph,bam/H3K4me3.dCDK.filtered.bedgraph,bam/H3K4me.WT.filtered.bedgraph,bam/H3K4me.dCDK.filtered.bedgraph,bam/H3K27ac.WT.filtered.bedgraph,bam/H3K27ac.dCDK.filtered.bedgraph bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph test_output bed/hg19.200bp.bed 8 true $PWD
+run_matlab run -v R2018b -r 9.5 bedGraph2Cluster bedGraph2Cluster bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph test_output bed/hg19.200bp.bed 8 true $PWD
 ```
