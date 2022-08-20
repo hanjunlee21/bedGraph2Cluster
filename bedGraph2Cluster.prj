@@ -3,7 +3,7 @@
     <param.appname>bedGraph2Cluster</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>1.8</param.version>
+    <param.version>1.9</param.version>
     <param.authnamewatermark>Hanjun Lee</param.authnamewatermark>
     <param.email>hanjun@mit.edu</param.email>
     <param.company>Massachusetts Institute of Technology</param.company>
@@ -29,10 +29,10 @@ MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa64:MR/v95/sys/openg
 If it is defined, set it to the following:
 
 ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa64:MR/v95/sys/opengl/lib/glnxa64</param.target.install.notes>
-    <param.intermediate>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing</param.intermediate>
-    <param.files.only>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_redistribution_files_only</param.files.only>
-    <param.output>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_redistribution</param.output>
-    <param.logdir>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8</param.logdir>
+    <param.intermediate>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing</param.intermediate>
+    <param.files.only>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_redistribution_files_only</param.files.only>
+    <param.output>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_redistribution</param.output>
+    <param.logdir>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9</param.logdir>
     <param.enable.clean.build>false</param.enable.clean.build>
     <param.user.defined.mcr.options />
     <param.target.type>subtarget.standalone</param.target.type>
@@ -87,10 +87,10 @@ ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa
     <fileset.package />
     <fileset.depfun />
     <build-deliverables>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing" name="run_bedGraph2Cluster.sh" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing/run_bedGraph2Cluster.sh</file>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing" name="readme.txt" optional="true">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing/readme.txt</file>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing" name="splash.png" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing/splash.png</file>
-      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing" name="bedGraph2Cluster" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.8/for_testing/bedGraph2Cluster</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing" name="splash.png" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing/splash.png</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing" name="readme.txt" optional="true">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing/readme.txt</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing" name="run_bedGraph2Cluster.sh" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing/run_bedGraph2Cluster.sh</file>
+      <file location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing" name="bedGraph2Cluster" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/pipeline/bedGraph2Cluster-v.1.9/for_testing/bedGraph2Cluster</file>
     </build-deliverables>
     <workflow />
     <matlab>
