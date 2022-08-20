@@ -1,10 +1,11 @@
-function bedGraph2Cluster(bedGraphs_Target, bedGraphs_Nontarget, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
+function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
 %% bedGraph2Cluster
-% e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
+% e.g., bedGraph2Cluster("bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph", "bam/RB.WT.filtered.bedgraph,bam/RB.dCDK.filtered.bedgraph,bam/H3K4me3.WT.filtered.bedgraph,bam/H3K4me3.dCDK.filtered.bedgraph,bam/H3K4me.WT.filtered.bedgraph,bam/H3K4me.dCDK.filtered.bedgraph,bam/H3K27ac.WT.filtered.bedgraph,bam/H3K27ac.dCDK.filtered.bedgraph", "bam/E2F1.filtered.bedgraph,bam/CTCF.shSCR.filtered.bedgraph,bam/c-Jun.shSCR.filtered.bedgraph", "bam/INPUT.WT.filtered.bedgraph,bam/INPUT.dCDK.filtered.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
 % 
 % Required arguments
-%     bedGraphs_Target (string): comma-delimited list of bedGraph files to be included during k-means clustering
-%     bedGraphs_Nontarget (string): comma-delimited list of bedGraph files to be excluded during k-means clustering
+%     bedGraphs_Peak (string): comma-delimited list of bedGraph files to be included during peak calling
+%     bedGraphs_Cluster (string): comma-delimited list of bedGraph files to be included during k-means clustering
+%     bedGraphs_Noncluster (string): comma-delimited list of bedGraph files to be excluded during k-means clustering
 %     bedGraphs_Control (string): comma-delimited list of bedGraph files to be used as controls for peak calling
 %     Outdir (string): path to the output directory
 %     BED_Bin (string): path to the BED file used for binned bedGraph generation
@@ -50,8 +51,9 @@ end
 
 %% Reading input files
 % Validating paths
-target = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Target),',').'));
-nontarget = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Nontarget),',').'));
+peak = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Peak),',').'));
+cluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Cluster),',').'));
+noncluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Noncluster),',').'));
 control = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
 bin = strcat(Workingdir, tostringmatrix(BED_Bin));
 outputdir = strcat(Workingdir, tostringmatrix(Outdir));
@@ -59,8 +61,9 @@ k = str2double(k);
 if k <= 0
     error('k has to be a positive integer')
 end
-areallpathsvalid(target);
-areallpathsvalid(nontarget);
+areallpathsvalid(peak);
+areallpathsvalid(cluster);
+areallpathsvalid(noncluster);
 areallpathsvalid(control);
 areallpathsvalid(bin);
 [~,~] = mkdir(outputdir);
@@ -69,15 +72,18 @@ disp(msg)
 
 %% Creating structure of binned coverage data
 % Creation of structure
-[X, rtarget, rnontarget, rcontrol] = structify(target, nontarget, control, bin);
+[X, rpeak, rcluster, rnoncluster, rcontrol] = structify(peak, cluster, noncluster, control, bin);
 
 % QNorm normalization
 X.samp = struct;
-samp_names = [target; nontarget; control];
+samp_names = [peak; cluster; noncluster; control];
 X.samp.name = cell(size(samp_names,1),1);
-for i = 1:size(samp_names,1), X.samp.name{i,1} = convertStringsToChars(samp_names(i,1));, end
+for i = 1:size(samp_names,1)
+    [~,samp_name,~] = fileparts(samp_names(i,1));
+    X.samp.name{i,1} = convertStringsToChars(samp_name);
+end
 X.samp.totct = sum(X.bin.ct_raw,1)';
-samps_for_median_totct = [rtarget, rnontarget, rcontrol];
+samps_for_median_totct = [rpeak, rcluster, rnoncluster, rcontrol];
 X.bin.ct_norm = bsxfun(@rdivide,X.bin.ct_raw,X.samp.totct'/median(X.samp.totct(samps_for_median_totct)));
 X.hist.bin = [0;unique(round(geometric_series(1,2000,200)))];
 X.samp.hist_norm = nan(slength(X.samp),slength(X.hist));
@@ -117,10 +123,10 @@ end
 X.samp.cf = cumsum(X.samp.hist,2)/slength(X.bin);
 save(strcat(outputdir,"/tiles_200_data.mat"),'X','-v7.3');
 
-% Peak selection for target
+% Peak selection
 damp=16; thresh=1; maxgap=3;
-X.bin.avgct_rb = mean(X.bin.ct(:,rtarget),2);
-X.bin.maxct_rb = max(X.bin.ct(:,rtarget),[],2);
+X.bin.avgct_rb = mean(X.bin.ct(:,rpeak),2);
+X.bin.maxct_rb = max(X.bin.ct(:,rpeak),[],2);
 X.bin.maxct_ctl = max(X.bin.ct(:,rcontrol),[],2);
 X.bin.log2fc = log2((damp+X.bin.maxct_rb)./(damp+X.bin.maxct_ctl));
 bidx = find(X.bin.log2fc>=thresh);
@@ -174,12 +180,12 @@ X.pixel = []; for samp=1:slength(X.samp), X.pixel.samp((samp-1)*50+[1:50],1)=sam
 X.peak = mf2a(X.peak,'pos','chr');
 
 % Clustering
-samps_to_cluster = [rtarget, rnontarget]; pixels_to_cluster = find(ismember(X.pixel.samp,samps_to_cluster));
+samps_to_cluster = [rcluster]; pixels_to_cluster = find(ismember(X.pixel.samp,samps_to_cluster));
 randinit(1234);
 X.peak.(['clust',num2str(k)]) = kmeansd(double(1e-5+X.peak.dat(:,pixels_to_cluster)),k,'distance','cosine','maxiter',1000);
 X = rmfield(X,'bin'); X.peak.dat=single(X.peak.dat); X.peak.raw=single(X.peak.raw);
 save(strcat(outputdir,"/tiles_200_data_peak.mat"),'X','-v7.3');
-samps_to_show = [rtarget, rnontarget, rcontrol]';
+samps_to_show = [rcluster, rnoncluster, rcontrol]';
 neighborhood_to_show = 10000; clustfld = ['clust',num2str(k)];
 X.peak = sort_struct(X.peak,{clustfld,'avgct_rb'},[1 -1]);
 figure(1),clf,hold on,ff,viscap=30;colorscheme=2;
@@ -194,8 +200,8 @@ end
 image(img);set(gca,'ydir','rev','position',[0.135 0.025 0.85 0.97]); xlim(0.5+[0 size(dat,2)]);ylim(0.5+[0 size(dat,1)]);
 xlabels_by_group(X.peak.(clustfld));ylabels_by_group(X.samp.name(X.pixel.samp(pixels_to_show)));
 w=12;h=7;set(gcf,'papersize',[w h],'paperposition',[0.2 0.2 w-0.4 h-0.4]);
-print_to_file(strcat(outputdir,"/clustering_heatmap.pdf"));
-
+print_to_file(strcat(outputdir,"/clustering_heatmap.pdf"),300);
+close all;
 end
 
 function output = tostringmatrix(input)
@@ -234,7 +240,7 @@ if ~exist(input, 'file')
 end
 end
 
-function [X, rtarget, rnontarget, rcontrol] = structify(target, nontarget, control, bin)
+function [X, rpeak, rcluster, rnoncluster, rcontrol] = structify(peak, cluster, noncluster, control, bin)
 % Read bins
 X = struct;
 fileID = fopen(bin,'r');
@@ -250,24 +256,32 @@ X.bin.pos = str2double(bed(:,2))+100;
 clearvars fileID dataArray bed ans;
 
 % Define ranges
-rtarget = 1:size(target,1);
-rnontarget = (size(target,1)+1):(size(target,1)+size(nontarget,1));
-rcontrol = (size(target,1)+size(nontarget,1)+1):(size(target,1)+size(nontarget,1)+size(control,1));
+rpeak = 1:size(peak,1);
+rcluster = (size(peak,1)+1):(size(peak,1)+size(cluster,1));
+rnoncluster = (size(peak,1)+size(cluster,1)+1):(size(peak,1)+size(cluster,1)+size(noncluster,1));
+rcontrol = (size(peak,1)+size(cluster,1)+size(noncluster,1)+1):(size(peak,1)+size(cluster,1)+size(noncluster,1)+size(control,1));
 
 % Read bedGraphs
-X.bin.ct_raw = zeros(size(X.bin.chr,1),(size(target,1)+size(nontarget,1)+size(control,1)));
-for i = 1:size(target,1)
-    fileID = fopen(target(i,1),'r');
+X.bin.ct_raw = zeros(size(X.bin.chr,1),(size(peak,1)+size(cluster,1)+size(noncluster,1)+size(control,1)));
+for i = 1:size(peak,1)
+    fileID = fopen(peak(i,1),'r');
     dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
     fclose(fileID);
-    X.bin.ct_raw(:,rtarget(1,i)) = [dataArray{1:end-1}];
+    X.bin.ct_raw(:,rpeak(1,i)) = [dataArray{1:end-1}];
     clearvars fileID dataArray ans;
 end
-for i = 1:size(nontarget,1)
-    fileID = fopen(nontarget(i,1),'r');
+for i = 1:size(cluster,1)
+    fileID = fopen(cluster(i,1),'r');
     dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
     fclose(fileID);
-    X.bin.ct_raw(:,rnontarget(1,i)) = [dataArray{1:end-1}];
+    X.bin.ct_raw(:,rcluster(1,i)) = [dataArray{1:end-1}];
+    clearvars fileID dataArray ans;
+end
+for i = 1:size(noncluster,1)
+    fileID = fopen(noncluster(i,1),'r');
+    dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
+    fclose(fileID);
+    X.bin.ct_raw(:,rnoncluster(1,i)) = [dataArray{1:end-1}];
     clearvars fileID dataArray ans;
 end
 for i = 1:size(control,1)
@@ -277,7 +291,6 @@ for i = 1:size(control,1)
     X.bin.ct_raw(:,rcontrol(1,i)) = [dataArray{1:end-1}];
     clearvars fileID dataArray ans;
 end
-
 msg = "All bedGraph files are imported";
 disp(msg)
 end
@@ -1197,7 +1210,7 @@ set(gca,'tickdir','out','linewidth',1.5,'xcolor',[0 0 0],'ycolor',[0 0 0],'zcolo
 set(gcf,'color',[1 1 1]);
 end
 
-function A = num2cellstr(a);
+function A = num2cellstr(a)
 A = cell(length(a),1);
 for i=1:length(a)
   A{i} = num2str(a(i));
