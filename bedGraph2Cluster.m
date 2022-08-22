@@ -139,6 +139,10 @@ end
 X.samp.cf = cumsum(X.samp.hist,2)/slength(X.bin);
 save(strcat(outputdir,"/tiles_200_data.mat"),'X','-v7.3');
 
+if QNorm == false
+    X.bin.ct = X.bin.ct_norm;
+end
+
 % Peak selection
 damp=16; thresh=log(FC)/log(2); maxgap=3;
 X.bin.avgct_rb = mean(X.bin.ct(:,rpeak),2);
