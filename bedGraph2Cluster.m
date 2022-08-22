@@ -1,4 +1,4 @@
-function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, k, QNorm, Workingdir)
+function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, FC, k, QNorm, Workingdir)
 %% bedGraph2Cluster
 % e.g., bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "test_output", "bed/hg19.200bp.bed", "8", "true", "../")
 % 
@@ -9,6 +9,7 @@ function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluste
 %     bedGraphs_Control (string): comma-delimited list of bedGraph files to be used as controls for peak calling
 %     Outdir (string): path to the output directory
 %     BED_Bin (string): path to the BED file used for binned bedGraph generation
+%     FC (string): threshold for the fold change over the control during peak calling
 %     k (string): number of clusters during k-means clustering
 %     QNorm (string): whether to perform QNorm normalization ("true": QNorm, "false": CPM)
 %
@@ -57,6 +58,10 @@ noncluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs
 control = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
 bin = strcat(Workingdir, tostringmatrix(BED_Bin));
 outputdir = strcat(Workingdir, tostringmatrix(Outdir));
+FC = str2double(FC);
+if FC <= 1
+    error('FC has to be greater than one')
+end
 k = str2double(k);
 if k <= 0
     error('k has to be a positive integer')
@@ -124,7 +129,7 @@ X.samp.cf = cumsum(X.samp.hist,2)/slength(X.bin);
 save(strcat(outputdir,"/tiles_200_data.mat"),'X','-v7.3');
 
 % Peak selection
-damp=16; thresh=1; maxgap=3;
+damp=16; thresh=log(FC)/log(2); maxgap=3;
 X.bin.avgct_rb = mean(X.bin.ct(:,rpeak),2);
 X.bin.maxct_rb = max(X.bin.ct(:,rpeak),[],2);
 X.bin.maxct_ctl = max(X.bin.ct(:,rcontrol),[],2);
