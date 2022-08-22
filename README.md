@@ -8,7 +8,6 @@ MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data
 ```MATLAB
 bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, FC, k, QNorm, Workingdir)
 ```
-<br/>
 
 ## Required arguments
 **bedGraphs_Peak (string)**: comma-delimited list of bedGraph files to be included during peak calling
@@ -32,6 +31,17 @@ bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGra
 ## Optional arguments
 **Workingdir (string)**: path to the output directory
 
+## Output files
+**tiles_200_data.mat**: MATLAB variable for the entire dataset
+
+**tiles_200_data_peak.mat**: MATLAB variable for only the peakset
+
+**peaks.bed**: BED file of the peakset
+
+**peaks.clust${k}.${clusterID}.bed**: BED file of the peakset for each cluster
+
+**clustering_heatmap.pdf**: heatmap for the *k*-means clustering
+
 <br/>
 
 # Examplary usage
@@ -39,6 +49,7 @@ bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGra
 ```MATLAB
 bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "test_output", "bed/hg19.200bp.bed", "2", "8", "true", "../")
 ```
+
 ## without license for MATLAB
 [![PyPI version](https://badge.fury.io/py/run_matlab.svg)](https://badge.fury.io/py/run_matlab)
 ```shell
