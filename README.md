@@ -9,6 +9,8 @@ MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data
 bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, FC, k, QNorm, Workingdir)
 ```
 
+<br/>
+
 ## Required arguments
 **bedGraphs_Peak (string)**: comma-delimited list of bedGraph files to be included during peak calling
 
