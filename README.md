@@ -1,5 +1,9 @@
 # bedGraph2Cluster
-MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data
+**MATLAB Function for the k-Means Clustering of ChIP-seq bedGraph Data**
+
+[![DOI](https://zenodo.org/badge/526668850.svg)](https://zenodo.org/badge/latestdoi/526668850)
+
+<br/>
 
 | MATLAB_VERSION  | RUNTIME_VERSION |
 | ------------- | ------------- |
