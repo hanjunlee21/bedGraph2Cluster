@@ -10,10 +10,10 @@ function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluste
 %     Outdir (string): path to the output directory
 %     BED_Bin (string): path to the BED file used for binned bedGraph generation
 %     FC (string): threshold for the fold change over the control during peak calling
-%     QNorm (string): whether to perform QNorm normalization ("true": QNorm, "false": CPM)
+%     QNorm (string): whether to perform QNorm normalization ("true" or "QNorm": QNorm, "false" or "CPM": CPM)
 %     k (string): number of clusters during k-means clustering
-%     distance (string): distance metric for k-means clustering
-%     clustering_method (string): clustering method to utilize (1-basic, 2-scalar_profile, 3-scalar_profile+fold_profile_onto_itself)
+%     distance (string): distance metric for k-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation", "hamming")
+%     clustering_method (string): clustering method to utilize ("1"-basic, "2"-scalar_profile, "3"-scalar_profile+fold_profile_onto_itself)
 %
 % Optional arguments
 %     Workingdir (string): path to the output directory
