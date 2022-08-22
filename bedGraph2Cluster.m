@@ -242,24 +242,24 @@ close all;
 chrs = ["chr1";"chr2";"chr3";"chr4";"chr5";"chr6";"chr7";"chr8";"chr9";"chr10";"chr11";"chr12";"chr13";"chr14";"chr15";"chr16";"chr17";"chr18";"chr19";"chr20";"chr21";"chr22";"chrX";"chrY"];
 fileID = fopen(convertStringsToChars(strcat(outputdir,"/peaks.bed")), 'w');
 for i = 1:size(X.peak.chr,1)
-    fprintf('%s\t',chrs(X.peak.chr(i,1),1));
-    fprintf('%s\t',convertCharsToStrings(num2str(X.peak.st(i,1)+1)));
-    fprintf('%s\t',convertCharsToStrings(num2str(X.peak.en(i,1))));
-    fprintf('%s\t',convertCharsToStrings(num2str(i)));
-    fprintf('%s\t',"1000");
-    fprintf('%s\n',".");
+    fprintf(fileID, '%s\t',chrs(X.peak.chr(i,1),1));
+    fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.st(i,1)+1)));
+    fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.en(i,1))));
+    fprintf(fileID, '%s\t',convertCharsToStrings(num2str(i)));
+    fprintf(fileID, '%s\t',"1000");
+    fprintf(fileID, '%s\n',".");
 end
 fclose(fileID);
 for clusterID = 1:k
     fileID = fopen(convertStringsToChars(strcat(outputdir,"/peaks.clust",convertCharsToStrings(num2str(k)),".",convertCharsToStrings(num2str(clusterID)),".bed")), 'w');
     for i = 1:size(X.peak.chr,1)
         if X.peak.(['clust',num2str(k)])(i,1) == clusterID
-            fprintf('%s\t',chrs(X.peak.chr(i,1),1));
-            fprintf('%s\t',convertCharsToStrings(num2str(X.peak.st(i,1)+1)));
-            fprintf('%s\t',convertCharsToStrings(num2str(X.peak.en(i,1))));
-            fprintf('%s\t',convertCharsToStrings(num2str(i)));
-            fprintf('%s\t',"1000");
-            fprintf('%s\n',".");
+            fprintf(fileID, '%s\t',chrs(X.peak.chr(i,1),1));
+            fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.st(i,1)+1)));
+            fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.en(i,1))));
+            fprintf(fileID, '%s\t',convertCharsToStrings(num2str(i)));
+            fprintf(fileID, '%s\t',"1000");
+            fprintf(fileID, '%s\n',".");
         end
     end
     fclose(fileID);
