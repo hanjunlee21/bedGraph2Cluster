@@ -71,6 +71,6 @@ run_matlab run -v R2018b -r 9.5 bedGraph2Cluster bedGraph2Cluster bedgraph/RB.WT
 
 ## BED_Bin
 
-**hg19**: https://drive.google.com/file/d/1chMyuUAK3rycgAbj1P-FnWhJkW7K0q0H/view?usp=sharing
+**hg19**: https://drive.google.com/uc?id=1chMyuUAK3rycgAbj1P-FnWhJkW7K0q0H&export=download&confirm=t
 
-**hg38**: https://drive.google.com/file/d/1kfVOx78xTBoJHC7EL_HnkCFiWxdrNDal/view?usp=sharing
+**hg38**: https://drive.google.com/uc?id=1kfVOx78xTBoJHC7EL_HnkCFiWxdrNDal&export=download&confirm=t
