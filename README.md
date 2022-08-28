@@ -74,3 +74,18 @@ run_matlab run -v R2018b -r 9.5 bedGraph2Cluster bedGraph2Cluster bedgraph/RB.WT
 **hg19**: https://drive.google.com/uc?id=1chMyuUAK3rycgAbj1P-FnWhJkW7K0q0H&export=download&confirm=t
 
 **hg38**: https://drive.google.com/uc?id=1kfVOx78xTBoJHC7EL_HnkCFiWxdrNDal&export=download&confirm=t
+
+
+<br/>
+
+
+# Examplary output
+## All output files
+![outputs](https://user-images.githubusercontent.com/67846757/187093037-7e33c73b-ceea-483e-a71c-79e791321718.png)
+
+## Clustering heatmap
+*k*=3             |  *k*=8
+:-------------------------:|:-------------------------:
+![fig1](https://user-images.githubusercontent.com/67846757/187092498-a6b716a2-1f01-4fc6-b437-298b60833b8f.png) | ![fig2](https://user-images.githubusercontent.com/67846757/187092500-4181af41-6641-4901-b9a9-eb26ec8345ad.png)
+
+
