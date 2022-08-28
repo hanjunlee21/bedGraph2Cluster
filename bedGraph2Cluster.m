@@ -1,23 +1,23 @@
-function bedGraph2Cluster(bedGraphs_Peak, bedGraphs_Cluster, bedGraphs_Noncluster, bedGraphs_Control, Outdir, BED_Bin, FC, QNorm, k, distance, clustering_method, Workingdir)
+function bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGraphs_Heatmap, Outdir, BED_Bin, FC, QNorm, k, distance, clustering_method, Workingdir)
 %% bedGraph2Cluster
-% e.g., bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "test_output", "bed/hg19.200bp.bed", "2", "true", "8", "cosine", "1", "../")
-%
+% e.g., bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph,bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "output", "bed/hg19.200bp.bed", "2", "true", "8", "cosine", "1", "../")
+% 
 % Required arguments
-%     bedGraphs_Peak (string): comma-delimited list of bedGraph files to be included during peak calling
+%     bedGraphs_Signal (string): comma-delimited list of bedGraph files to be included during peak calling
+%     bedGraphs_Control (string): comma-delimited list of bedGraph files to be used as controls for peak calling  
 %     bedGraphs_Cluster (string): comma-delimited list of bedGraph files to be included during k-means clustering
-%     bedGraphs_Noncluster (string): comma-delimited list of bedGraph files to be excluded during k-means clustering
-%     bedGraphs_Control (string): comma-delimited list of bedGraph files to be used as controls for peak calling
+%     bedGraphs_Heatmap (string): comma-delimited list of bedGraph files to be included in heatmap
 %     Outdir (string): path to the output directory
 %     BED_Bin (string): path to the BED file used for binned bedGraph generation
-%     FC (string): threshold for the fold change over the control during peak calling
+%     FC (string): threshold for the fold change of signal over control during peak calling
 %     QNorm (string): whether to perform QNorm normalization ("true" or "QNorm": QNorm, "false" or "CPM": CPM)
 %     k (string): number of clusters during k-means clustering
 %     distance (string): distance metric for k-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation", "hamming")
-%     clustering_method (string): clustering method to utilize ("1"-basic, "2"-scalar_profile, "3"-scalar_profile+fold_profile_onto_itself)
+%     clustering_method (string): clustering method to utilize ("1" = profile, "2" = profile+scalar, "3" = symmetry_collapsed_profile+scalar)
 %
-% Optional arguments
-%     Workingdir (string): path to the output directory
-%
+% Optional arguments 
+%     Workingdir (string): path to the working directory
+% 
 %% MIT License
 %
 % Copyright (c) 2022 Hanjun Lee (MIT/Broad/MGH), Michael S. Lawrence (Broad/MGH)
@@ -47,12 +47,13 @@ else
     error('QNorm has an inappropriate value')
 end
 
-if ~strcmp(convertCharsToStrings(distance),"sqeuclidean") && ~strcmp(convertCharsToStrings(distance),"cityblock") && ~strcmp(convertCharsToStrings(distance),"cosine") && ~strcmp(convertCharsToStrings(distance),"correlation") && ~strcmp(convertCharsToStrings(distance),"hamming")
+if ~strcmp(convertCharsToStrings(distance),"sqeuclidean") && ~strcmp(convertCharsToStrings(distance),"cityblock") && ~strcmp(convertCharsToStrings(distance),"cosine") ...
+  && ~strcmp(convertCharsToStrings(distance),"correlation") && ~strcmp(convertCharsToStrings(distance),"hamming")
     error('distance has to be one of following: sqeuclidean, cityblock, cosine, correlation, hamming')
 end
 
 if ~strcmp(convertCharsToStrings(clustering_method),"1") && ~strcmp(convertCharsToStrings(clustering_method),"2") && ~strcmp(convertCharsToStrings(clustering_method),"3")
-    error('clustering_method has to be one of following: 1, 2, 3 (1-basic, 2-scalar_profile, 3-scalar_profile+fold_profile_onto_itself)')
+    error('clustering_method has to be one of following: ("1" = profile, "2" = profile+scalar, "3" = symmetry_collapsed_profile+scalar)') 
 end
 
 if ~exist('Workingdir','var')
@@ -63,10 +64,10 @@ end
 
 %% Reading input files
 % Validating paths
-peaks = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Peak),',').'));
-cluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Cluster),',').'));
-noncluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Noncluster),',').'));
+signal = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Signal),',').'));
 control = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
+cluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Cluster),',').'));
+heatmap = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Heatmap),',').'));
 bin = strcat(Workingdir, tostringmatrix(BED_Bin));
 outputdir = strcat(Workingdir, tostringmatrix(Outdir));
 FC = str2double(FC);
@@ -77,10 +78,10 @@ k = str2double(k);
 if k <= 0
     error('k has to be a positive integer')
 end
-areallpathsvalid(peaks);
-areallpathsvalid(cluster);
-areallpathsvalid(noncluster);
+areallpathsvalid(signal);
 areallpathsvalid(control);
+areallpathsvalid(cluster);
+areallpathsvalid(heatmap);
 areallpathsvalid(bin);
 [~,~] = mkdir(outputdir);
 msg = "All paths are valid";
@@ -88,65 +89,57 @@ disp(msg)
 
 %% Creating structure of binned coverage data
 % Creation of structure
-[X, rpeak, rcluster, rnoncluster, rcontrol] = structify(peaks, cluster, noncluster, control, bin);
+[X, rsignal, rcontrol, rcluster, rheatmap] = structify(signal, control, cluster, heatmap, bin);
 
-% QNorm normalization
-X.samp = struct;
-samp_names = [peaks; cluster; noncluster; control];
-X.samp.name = cell(size(samp_names,1),1);
-for i = 1:size(samp_names,1)
-    [~,samp_name,~] = fileparts(samp_names(i,1));
-    X.samp.name{i,1} = convertStringsToChars(samp_name);
-end
+% Normalization to median total counts
 X.samp.totct = sum(X.bin.ct_raw,1)';
-samps_for_median_totct = [rpeak, rcontrol];
-X.bin.ct_norm = bsxfun(@rdivide,X.bin.ct_raw,X.samp.totct'/median(X.samp.totct(samps_for_median_totct)));
-X.hist.bin = [0;unique(round(geometric_series(1,2000,200)))];
-X.samp.hist_norm = nan(slength(X.samp),slength(X.hist));
-for i = 1:slength(X.samp)
-    X.samp.hist_norm(i,:) = histc(X.bin.ct_norm(:,i),X.hist.bin);
-end
-X.samp.cf_norm = cumsum(X.samp.hist_norm,2)/slength(X.bin);
-X.hist.cf_avg_norm = X.samp.cf_norm(1,:)';
+samps_for_median_totct = unique([rsignal;rcontrol;rcluster]);
+median_totct = median(X.samp.totct(samps_for_median_totct));
+X.bin.ct_norm = bsxfun(@rdivide,X.bin.ct_raw,X.samp.totct'/median_totct);
 
-% Find fits for QNorm normalization
-for i=1:slength(X.samp)
+% QNorm normalization = inspired by the S3norm method of Xiang et al. https://doi.org/10.1093/nar/gkaa105
+if QNorm == true
+  fprintf('QNorm: ');
+  qnorm_ref_sample = rsignal(1);  % first sample in the list of "signal" bedgraphs will be used as the reference to normalize other samples to
+  X.hist.bin = [0;unique(round(geometric_series(1,2000,200)))];
+  X.samp.hist_norm = nan(slength(X.samp),slength(X.hist));
+  for i = 1:slength(X.samp)
+    X.samp.hist_norm(i,:) = histc(X.bin.ct_norm(:,i),X.hist.bin);
+  end
+  X.samp.cf_norm = cumsum(X.samp.hist_norm,2)/slength(X.bin);
+  X.hist.cf_ref_norm = X.samp.cf_norm(qnorm_ref_sample,:)';
+  X.samp.lin = nan(slength(X.samp),1); X.samp.exp = nan(slength(X.samp),1);
+  for i=1:slength(X.samp)
     fprintf('%d/%d ',i,slength(X.samp));
-    x0 = log10(1.5+X.hist.bin); y0 = log10(1-X.hist.cf_avg_norm); y0(isinf(y0))=nan;
+    x0 = log10(1.5+X.hist.bin); y0 = log10(1-X.hist.cf_ref_norm); y0(isinf(y0))=nan;
     yi = log10(1-X.samp.cf_norm(i,:)');
     lins = geometric_series(0.1,10,100); exps = geometric_series(0.1,10,100);
     score = nan(length(lins),length(exps));
     for lini=1:length(lins),lin=lins(lini);
-        for expi=1:length(exps),exp=exps(expi);
-            adjbins = lin*(X.hist.bin.^exp); x2 = log10(1.5+adjbins);
-            d = bsxfun(@minus,x2,x0'); [~,map] = min(abs(d),[],1);
-            score(lini,expi) = nanmean((y0-yi(map)).^2);
-        end
+      for expi=1:length(exps),exp=exps(expi);
+        adjbins = lin*(X.hist.bin.^exp); x2 = log10(1.5+adjbins);
+        d = bsxfun(@minus,x2,x0'); [~,map] = min(abs(d),[],1);
+        score(lini,expi) = nanmean((y0-yi(map)).^2);
+      end
     end
     [~,ord] = min(score(:)); [lini,expi] = ind2sub(size(score),ord); lin=lins(lini); exp=exps(expi);
     adjbins = lin*(X.hist.bin.^exp); x2 = log10(1.5+adjbins);
     X.samp.lin(i,1)=lin; X.samp.exp(i,1)=exp;
+  end
+  fprintf('\n');
+  X.samp.exp(rcontrol)=1; X.samp.lin(rcontrol)=1;
+  X.bin.ct = bsxfun(@times,bsxfun(@power,X.bin.ct_norm,X.samp.exp'),X.samp.lin');
+else
+  X.bin.ct = X.bin.ct_norm;
 end
-fprintf('\n');
-X.samp.exp(rcontrol)=1; X.samp.lin(rcontrol)=1;
 
-% Apply transformation for QNorm normalization
-X.bin.ct = bsxfun(@times,bsxfun(@power,X.bin.ct_norm,X.samp.exp'),X.samp.lin');
-X.samp.hist = nan(slength(X.samp),slength(X.hist));
-for i=1:slength(X.samp)
-    X.samp.hist(i,:) = histc(X.bin.ct(:,i),X.hist.bin);
-end
-X.samp.cf = cumsum(X.samp.hist,2)/slength(X.bin);
+% Save file with all data
 save(strcat(outputdir,"/tiles_200_data.mat"),'X','-v7.3');
-
-if QNorm == false
-    X.bin.ct = X.bin.ct_norm;
-end
 
 % Peak selection
 damp=16; thresh=log(FC)/log(2); maxgap=3;
-X.bin.avgct_rb = mean(X.bin.ct(:,rpeak),2);
-X.bin.maxct_rb = max(X.bin.ct(:,rpeak),[],2);
+X.bin.avgct_rb = mean(X.bin.ct(:,rsignal),2);
+X.bin.maxct_rb = max(X.bin.ct(:,rsignal),[],2);
 X.bin.maxct_ctl = max(X.bin.ct(:,rcontrol),[],2);
 X.bin.log2fc = log2((damp+X.bin.maxct_rb)./(damp+X.bin.maxct_ctl));
 bidx = find(X.bin.log2fc>=thresh);
@@ -165,12 +158,6 @@ for i=slength(dat):-1:1
     a = X.bin.avgct_rb(dat.bidx_first(i):dat.bidx_last(i));
     [mx,mxi] = max(a);
     dat.bidx_max(i,1) = mxi+dat.bidx_first(i)-1;
-    halfmax = find(a>=0.5*mx);
-    dat.bidx_halfmax{i,1} = halfmax+dat.bidx_first(i)-1;
-    dat.nbin_halfmax(i,1) = length(halfmax);
-    pct80max = find(a>=0.8*mx);
-    dat.bidx_pct80max{i,1} = pct80max+dat.bidx_first(i)-1;
-    dat.nbin_pct80max(i,1) = length(pct80max);
 end
 align_to_max = true;
 width = 10000/200;
@@ -182,8 +169,8 @@ else
 end
 peak.pos = X.bin.pos(peak.bidx_mid);
 peak.bidx_first = peak.bidx_mid-(width/2); peak.bidx_last = peak.bidx_first + width-1;
-peak.chr_first = X.bin.chr(peak.bidx_first); peak.chr_last = X.bin.chr(peak.bidx_last); all(peak.chr_first==peak.chr_last) % 1  --> good, no peaks cross a chr boundary
-peak = rmfield(peak,{'chr_first','chr_last'});
+
+% Extract data
 height = slength(X.samp);
 peak.raw_scalar = zeros(slength(peak),slength(X.samp));
 peak.dat_scalar = zeros(slength(peak),slength(X.samp));
@@ -200,17 +187,18 @@ X.pixel = []; for samp=1:slength(X.samp), X.pixel.samp((samp-1)*50+[1:50],1)=sam
 X.peak = mf2a(X.peak,'pos','chr');
 
 % Clustering
-samps_to_cluster = [rcluster]; pixels_to_cluster = find(ismember(X.pixel.samp,samps_to_cluster));
+samps_to_cluster = [rcluster];
+pixels_to_cluster = []; for i=1:length(samps_to_cluster), pixels_to_cluster=[pixels_to_cluster;find(X.pixel.samp==samps_to_cluster(i))]; end
 if strcmp(convertCharsToStrings(clustering_method),"1")
-    % 1-basic
+    % "1" = profile (basic)
     kmean_input = double(1e-5+X.peak.dat(:,pixels_to_cluster));
 elseif strcmp(convertCharsToStrings(clustering_method),"2")
-    % 2-scalar_profile
+    % "2" = profile + scalar
     scalar = double(1e-5+X.peak.dat_scalar(:,samps_to_cluster));
     profile = double(1e-5+X.peak.dat(:,pixels_to_cluster));
     kmean_input = [scalar profile];
 elseif strcmp(convertCharsToStrings(clustering_method),"3")
-    % 3-scalar_profile+fold_profile_onto_itself)
+    % "3" = symmetry_collapsed_profile + scalar
     scalar = double(1e-5+X.peak.dat_scalar(:,samps_to_cluster));
     profile = double(1e-5+X.peak.dat(:,pixels_to_cluster));
     for i=1:50:size(profile,2),profile(:,i:i+24)=profile(:,i:i+24)+profile(:,i+49:-1:i+25);profile(:,i+49:-1:i+25)=nan;end;profile(:,all(isnan(profile),1))=[];
@@ -218,9 +206,13 @@ elseif strcmp(convertCharsToStrings(clustering_method),"3")
 end
 randinit(1234);
 X.peak.(['clust',num2str(k)]) = kmeansd(kmean_input,k,'distance',convertStringsToChars(distance),'maxiter',1000);
+
+% Save file with peaks only
 X = rmfield(X,'bin'); X.peak.dat=single(X.peak.dat); X.peak.raw=single(X.peak.raw);
 save(strcat(outputdir,"/tiles_200_data_peak.mat"),'X','-v7.3');
-samps_to_show = [rcluster, rnoncluster, rcontrol]';
+
+% Heatmap
+samps_to_show = [rheatmap]';
 neighborhood_to_show = 10000; clustfld = ['clust',num2str(k)];
 X.peak = sort_struct(X.peak,{clustfld,'avgct_rb'},[1 -1]);
 figure(1),clf,hold on,ff,viscap=30;colorscheme=2;
@@ -239,7 +231,8 @@ print_to_file(strcat(outputdir,"/clustering_heatmap.pdf"),300);
 close all;
 
 % Export peakset to BED files
-chrs = ["chr1";"chr2";"chr3";"chr4";"chr5";"chr6";"chr7";"chr8";"chr9";"chr10";"chr11";"chr12";"chr13";"chr14";"chr15";"chr16";"chr17";"chr18";"chr19";"chr20";"chr21";"chr22";"chrX";"chrY"];
+chrs = ["chr1";"chr2";"chr3";"chr4";"chr5";"chr6";"chr7";"chr8";"chr9";"chr10";"chr11";"chr12";"chr13";"chr14";"chr15";"chr16";"chr17";"chr18";"chr19";"chr20";"chr21";...
+        "chr22";"chrX";"chrY"];
 fileID = fopen(convertStringsToChars(strcat(outputdir,"/peaks.bed")), 'w');
 for i = 1:size(X.peak.chr,1)
     fprintf(fileID, '%s\t',chrs(X.peak.chr(i,1),1));
@@ -302,57 +295,52 @@ if ~exist(input, 'file')
 end
 end
 
-function [X, rpeak, rcluster, rnoncluster, rcontrol] = structify(peak, cluster, noncluster, control, bin)
-% Read bins
-X = struct;
-fileID = fopen(bin,'r');
-dataArray = textscan(fileID, '%s%s%s%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string',  'ReturnOnError', false);
-fclose(fileID);
-bed = [dataArray{1:end-1}];
-X.bin = struct;
-X.bin.chr = zeros(size(bed,1),1);
-for i = 1:size(X.bin.chr,1)
-    X.bin.chr(i,1) = removechr(bed(i,1));
-end
-X.bin.pos = str2double(bed(:,2))+100;
-clearvars fileID dataArray bed ans;
+function [X, rsignal, rcontrol, rcluster, rheatmap] = structify(signal, control, cluster, heatmap, bin)
 
-% Define ranges
-rpeak = 1:size(peak,1);
-rcluster = (size(peak,1)+1):(size(peak,1)+size(cluster,1));
-rnoncluster = (size(peak,1)+size(cluster,1)+1):(size(peak,1)+size(cluster,1)+size(noncluster,1));
-rcontrol = (size(peak,1)+size(cluster,1)+size(noncluster,1)+1):(size(peak,1)+size(cluster,1)+size(noncluster,1)+size(control,1));
+X = struct;
+  
+% Make list of unique bedgraphs (so we load each only once)
+X.samp = struct;
+X.samp.bedgraph = unique([signal; control; cluster; heatmap]);
+for i = 1:slength(X.samp)
+  [~,samp_name,~] = fileparts(X.samp.bedgraph(i,1));
+  X.samp.name{i,1} = convertStringsToChars(samp_name);
+end
+
+% Define sample ranges
+rsignal = listmap(signal,X.samp.bedgraph);
+rcontrol = listmap(control,X.samp.bedgraph);
+rcluster = listmap(cluster,X.samp.bedgraph);
+rheatmap = listmap(heatmap,X.samp.bedgraph);
+
+% Read bins
+fprintf('Loading bins file %s\n',bin);
+fileID = fopen(bin,'r');
+bed = textscan(fileID, '%s%f%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string',  'ReturnOnError', false);
+fclose(fileID);
+X.bin = struct;
+X.bin.chr = convert_chr(bed{1});
+X.bin.pos = bed{2}+100;
+X.bin = sort_struct(X.bin,{'chr','pos'});
 
 % Read bedGraphs
-X.bin.ct_raw = zeros(size(X.bin.chr,1),(size(peak,1)+size(cluster,1)+size(noncluster,1)+size(control,1)));
-for i = 1:size(peak,1)
-    fileID = fopen(peak(i,1),'r');
-    dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
+X.bin.ct_raw = zeros(slength(X.bin),slength(X.samp));
+for i = 1:slength(X.samp)
+    fname = X.samp.bedgraph(i);
+    fprintf('Importing bedGraph %d/%d   %s\n',i,slength(X.samp),fname);
+    fileID = fopen(fname,'r');
+    bg = textscan(fileID, '%s%f%f%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
     fclose(fileID);
-    X.bin.ct_raw(:,rpeak(1,i)) = [dataArray{1:end-1}];
-    clearvars fileID dataArray ans;
+    B = struct;
+    B.chr = convert_chr(bg{1});
+    B.pos = bg{2}+100;
+    B.ct = bg{4};
+    B = sort_struct(B,{'chr','pos'});
+    if ~all(B.chr==X.bin.chr & B.pos==X.bin.pos), error('Bins don''t match'); end
+    if ~all(B.ct==round(B.ct) & B.ct>=0), error('Expecting integer counts data'); end
+    X.bin.ct_raw(:,i) = B.ct;
 end
-for i = 1:size(cluster,1)
-    fileID = fopen(cluster(i,1),'r');
-    dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
-    fclose(fileID);
-    X.bin.ct_raw(:,rcluster(1,i)) = [dataArray{1:end-1}];
-    clearvars fileID dataArray ans;
-end
-for i = 1:size(noncluster,1)
-    fileID = fopen(noncluster(i,1),'r');
-    dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
-    fclose(fileID);
-    X.bin.ct_raw(:,rnoncluster(1,i)) = [dataArray{1:end-1}];
-    clearvars fileID dataArray ans;
-end
-for i = 1:size(control,1)
-    fileID = fopen(control(i,1),'r');
-    dataArray = textscan(fileID, '%*s%*s%*s%f%[^\n\r]', 'Delimiter', '\t', 'TextType', 'string', 'EmptyValue', 0, 'ReturnOnError', false);
-    fclose(fileID);
-    X.bin.ct_raw(:,rcontrol(1,i)) = [dataArray{1:end-1}];
-    clearvars fileID dataArray ans;
-end
+
 msg = "All bedGraph files are imported";
 disp(msg)
 end
@@ -390,29 +378,37 @@ if length(size(d))~=length(size(x)) || ~all(size(d)==size(x))
 end
 end
 
-function withoutchr = removechr(withchr)
-chrs = ["chr1";"chr2";"chr3";"chr4";"chr5";"chr6";"chr7";"chr8";"chr9";"chr10";"chr11";"chr12";"chr13";"chr14";"chr15";"chr16";"chr17";"chr18";"chr19";"chr20";"chr21";"chr22";"chrX";"chrY"];
-withoutchr = find(strcmpi(withchr,chrs));
+function withoutchr = convert_chr(withchr)
+chrs = ["chr1";"chr2";"chr3";"chr4";"chr5";"chr6";"chr7";"chr8";"chr9";"chr10";"chr11";"chr12";"chr13";"chr14";"chr15";"chr16";"chr17";"chr18";"chr19";"chr20";"chr21";...
+        "chr22";"chrX";"chrY"];
+withoutchr = listmap(withchr,chrs);
+if ~all(isnan(withoutchr)), return; end
+
+chrs = ["1";"2";"3";"4";"5";"6";"7";"8";"9";"10";"11";"12";"13";"14";"15";"16";"17";"18";"19";"20";"21";"22";"X";"Y"];
+withoutchr = listmap(withchr,chrs);
+if ~all(isnan(withoutchr)), return; end
+
+error('Failed to match chromosome names to those expected for human 1-22,XY');
 end
 
 function [s2,ord]=sort_struct(s1,keyfield,order)
 if slength(s1)==0
-    s2 = s1;
-    ord = [];
-    return
+  s2 = s1;
+  ord = [];
+  return
 end
 if length(keyfield)==0, return; end
 if ~iscell(keyfield)
-    keyfield = {keyfield};
+  keyfield = {keyfield};
 end
 if ~exist('order','var')
-    order = repmat(1,length(keyfield),1);
+  order = repmat(1,length(keyfield),1);
 end
 if ischar(order) && strcmpi(order,'descend')
-    order = [-1];
+  order = [-1];
 end
 if length(order) ~= length(keyfield)
-    error('order and keyfield must have same number of elements');
+  error('order and keyfield must have same number of elements');
 end
 if any(order~=1 & order~=-1) error('unknown order type'); end
 orig_len = slength(s1);
@@ -421,18 +417,18 @@ fields = fieldnames(s1);
 nf = length(fields);
 rank = nan(orig_len,nf);
 for k=1:length(keyfield)
-    f = getfield(s1,keyfield{k});
-    if length(f)<orig_len, error('Attempted to sort on truncated field "%s"',keyfield{k}); end
-    if islogical(f), f=1*f; end
-    if isnumeric(f)
-        [u ui uj] = unique(f,'rows');
-        [tmp ordi] = sortrows(u);
-    else
-        [u ui uj] = unique(f);
-        [tmp ordi] = sort(u);
-    end
-    if order(k)==-1, ordi=ordi(end:-1:1); end
-    rank(:,k) = ordi(uj);
+  f = getfield(s1,keyfield{k});
+  if length(f)<orig_len, error('Attempted to sort on truncated field "%s"',keyfield{k}); end
+  if islogical(f), f=1*f; end
+  if isnumeric(f)
+    [u ui uj] = unique(f,'rows');
+    [tmp ordi] = sortrows(u);   
+  else
+    [u ui uj] = unique(f);
+    [tmp ordi] = sort(u);
+  end
+  if order(k)==-1, ordi=ordi(end:-1:1); end
+  rank(:,k) = ordi(uj);
 end
 [tmp ord] = sortrows(rank);
 s2 = reorder_struct(s1,ord);
@@ -465,49 +461,49 @@ end
 
 function Y = nansub(X,idx,filler)
 if length(size(X))==2 && size(X,1)==1 && size(X,2)>1
-    %   fprintf('note: converting first argument to column vector\n');
-    X = X';
+%   fprintf('note: converting first argument to column vector\n');
+  X = X';
 end
 if iscellstr(X) && size(X,1)==1 && size(X,2)>1
-    X=X';
+  X=X';
 end
 if islogical(X)
-    type = 0;
+  type = 0;
 elseif isnumeric(X)
-    type = 1;
+  type = 1;
 elseif iscell(X)
-    type = 2;
+  type = 2;
 else
-    error('Unsupported array type');
+  error('Unsupported array type');
 end
 if ~exist('filler','var')
-    if type==0
-        filler = false;
-    elseif type==1
-        filler = nan;
-    elseif type==2
-        filler = {''};
-    else
-        error('Inconsistent behavior with "type"');
-    end
+  if type==0
+    filler = false;
+  elseif type==1
+    filler = nan;
+  elseif type==2
+    filler = {''};
+  else
+    error('Inconsistent behavior with "type"');
+  end
 end
 if type==0
-    if ~islogical(filler)
-        error('Inappropriate filler for logical array');
-    end
+  if ~islogical(filler)
+    error('Inappropriate filler for logical array');
+  end
 elseif type==1
-    if ~isnumeric(filler)
-        error('Inappropriate filler for numeric array');
-    end
+  if ~isnumeric(filler)
+    error('Inappropriate filler for numeric array');
+  end
 elseif type==2
-    if ischar(filler)
-        filler = {filler};
-    end
-    if ~iscell(filler)
-        error('Inappropriate filler for cell array');
-    end
+  if ischar(filler)
+    filler = {filler};
+  end
+  if ~iscell(filler)
+    error('Inappropriate filler for cell array');
+  end
 else
-    error('Inconsistent behavior with "type"');
+  error('Inconsistent behavior with "type"');
 end
 sz = size(X); sz(1) = length(idx);
 Y = repmat(filler,sz);
@@ -554,11 +550,13 @@ end
 end
 
 function [idx,c,sumd,d] = kmeansd(x,k,varargin)
+% kmeans deterministic
 initcen = rand(k,size(x,2));
 [idx,c,sumd,d] = kmeans(x,k,'start',initcen,varargin{:});
 end
 
 function varargout = kmeans(X, k, varargin)
+% by Mathworks
 if nargin > 0
     X = convertStringsToChars(X);
 end
@@ -1097,12 +1095,12 @@ function S2 = keep_fields(S,flds)
 if ischar(flds), flds = {flds}; end
 S2=[];
 for i=1:length(flds)
-    if isempty(S)
-        f = [];
-    else
-        f = getfield(S,flds{i});
-    end
-    S2=setfield(S2,flds{i},f);
+  if isempty(S)
+    f = [];
+  else
+    f = getfield(S,flds{i});
+  end
+  S2=setfield(S2,flds{i},f);
 end
 end
 
@@ -1112,30 +1110,30 @@ end
 
 function S = rename_field(S, oldname, newname)
 if iscell(oldname) && iscell(newname)
-    if ~iscell(newname) || length(oldname)~=length(newname), error('lists must be same length'); end
+  if ~iscell(newname) || length(oldname)~=length(newname), error('lists must be same length'); end
 elseif ~iscell(oldname) && ~iscell(newname)
-    oldname = {oldname};
-    newname = {newname};
+  oldname = {oldname};
+  newname = {newname};
 else
-    error('improper parameters');
+  error('improper parameters');
 end
 flds = fieldnames(S);
 for i=1:length(oldname)
-    f = getfield(S, oldname{i});
-    S = setfield(S, newname{i}, f);
-    if ~strcmp(oldname{i},newname{i})
-        S = rmfield(S, oldname{i});
-    end
-    idx = find(strcmp(flds,oldname{i}));
-    if length(idx)~=1, error('unexpected behavior'); end
-    flds{idx} = newname{i};
+  f = getfield(S, oldname{i});
+  S = setfield(S, newname{i}, f);
+  if ~strcmp(oldname{i},newname{i})
+    S = rmfield(S, oldname{i});
+  end
+  idx = find(strcmp(flds,oldname{i}));
+  if length(idx)~=1, error('unexpected behavior'); end
+  flds{idx} = newname{i};
 end
 S = order_fields_first(S,unique_keepord(flds));
 end
 
 function [u ui uj] = unique_keepord(x,varargin);
 if exist('varargin','var') && length(varargin)>=1 && ischar(varargin{1}) && (strcmpi(varargin{1},'first')|strcmpi(varargin{1},'last'))
-    error('please do not specify "first" or "last" with this function.  (default is "first")');
+  error('please do not specify "first" or "last" with this function.  (default is "first")');
 end
 [u1 ui1 uj1] = unique(x,'first',varargin{:});
 [ui ord] = sort(ui1);
@@ -1144,9 +1142,9 @@ u = x(ui1(ord));
 uj = ord2(uj1);
 return
 if iscell(x)
-    if any(~strcmp(x,u(uj))) || any(~strcmp(u,x(ui))), error('unique_keepord not working properly!!!'); end
+  if any(~strcmp(x,u(uj))) || any(~strcmp(u,x(ui))), error('unique_keepord not working properly!!!'); end
 else
-    if any(x~=u(uj)) || any(u~=x(ui)), error('unique_keepord not working properly!!!'); end
+  if any(x~=u(uj)) || any(u~=x(ui)), error('unique_keepord not working properly!!!'); end
 end
 end
 
@@ -1185,8 +1183,8 @@ end
 function xlabels_by_group(labels,lines_color,varargin)
 rot=90; halign='right'; valign='middle';
 if exist('lines_color','var') && ischar(lines_color) && strcmpi('hor',lines_color)
-    rot=0; halign='center'; valign='top';
-    clear lines_color
+  rot=0; halign='center'; valign='top';
+  clear lines_color
 end
 if ~exist('lines_color','var'), lines_color = [0 0 0]; end
 if isnumeric(labels), labels = num2cellstr(labels); end
@@ -1197,25 +1195,25 @@ b = find(~strcmp(l1,l2));
 set(gca,'xtick',[0;b+0.5],'xticklabel',{});
 yl = ylim();
 if strcmp(get(gca,'ydir'),'reverse')
-    ypos = yl(2);
+  ypos = yl(2);
 else
-    ypos = yl(1);
+  ypos = yl(1);
 end
 b = [0;b];
 for i=1:length(b)
-    if i>1
-        xpos = (b(i-1) + b(i)) / 2;
-        text(xpos,ypos,labels{b(i)},'rotation',rot,'clipping','off','horizontalalignment',halign,'verticalalignment',valign,'interpreter','none',varargin{:});
-    end
+  if i>1
+    xpos = (b(i-1) + b(i)) / 2;
+text(xpos,ypos,labels{b(i)},'rotation',rot,'clipping','off','horizontalalignment',halign,'verticalalignment',valign,'interpreter','none',varargin{:});
+  end
 end
 if ~isempty(lines_color)
-    for i=0:length(b)
-        if i==0
-            line([0 0]+0.5,ylim,'color',lines_color,'clipping','off');
-        else
-            line([b(i) b(i)]+0.5,ylim,'color',lines_color);
-        end
+  for i=0:length(b)
+    if i==0
+      line([0 0]+0.5,ylim,'color',lines_color,'clipping','off');
+    else
+      line([b(i) b(i)]+0.5,ylim,'color',lines_color);
     end
+  end
 end
 end
 
@@ -1229,28 +1227,28 @@ b = find(~strcmp(l1,l2));
 set(gca,'ytick',[0;b+0.5],'yticklabel',{});
 xl = xlim();
 if strcmp(get(gca,'xdir'),'reverse')
-    xpos = xl(2);
+  xpos = xl(2);
 else
-    xpos = xl(1) - 0.01*(xl(2)-xl(1));
+  xpos = xl(1) - 0.01*(xl(2)-xl(1));
 end
 for i=1:length(b)
-    if i==1
-        y1=0;
-    else
-        y1=b(i-1);
-    end
-    y2 = b(i);
-    ypos = y1 + 0.5*(y2-y1);
-    text(xpos,ypos,labels{b(i)},'clipping','off','verticalalign','middle',varargin{:},'horizontalalign','right','interpreter','none');
+  if i==1
+    y1=0;
+  else
+    y1=b(i-1);
+  end
+  y2 = b(i);
+  ypos = y1 + 0.5*(y2-y1);
+text(xpos,ypos,labels{b(i)},'clipping','off','verticalalign','middle',varargin{:},'horizontalalign','right','interpreter','none');
 end
 if ~isempty(lines_color)
-    for i=0:length(b)
-        if i==0
-            line(xlim,[0 0]+0.5,'color',lines_color,'clipping','off');
-        else
-            line(xlim,[b(i) b(i)]+0.5,'color',lines_color);
-        end
+  for i=0:length(b)
+    if i==0
+      line(xlim,[0 0]+0.5,'color',lines_color,'clipping','off');
+    else
+      line(xlim,[b(i) b(i)]+0.5,'color',lines_color);
     end
+  end
 end
 end
 
@@ -1275,6 +1273,26 @@ end
 function A = num2cellstr(a)
 A = cell(length(a),1);
 for i=1:length(a)
-    A{i} = num2str(a(i));
+  A{i} = num2str(a(i));
 end
 end
+
+function m = listmap(a,b)
+na = length(a);
+nb = length(b);
+x = [];
+x.val = [as_column(a);as_column(b)];
+x.a = [true(na,1);false(nb,1)];
+x.idx = as_column([1:na 1:nb]);
+[tmp ui x.uj] = unique(x.val);
+x = sort_struct(x,{'uj','a'});
+m = nan(na,1);
+aidx = nan;
+bidx = nan;
+for i=1:slength(x)
+  if i>1 && x.uj(i)~=x.uj(i-1), aidx=nan; bidx=nan; end
+  if x.a(i), aidx=x.idx(i); else bidx=x.idx(i); end
+  if ~isnan(aidx), m(aidx)=bidx; end
+end
+end
+
