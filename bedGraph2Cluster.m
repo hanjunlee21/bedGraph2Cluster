@@ -337,7 +337,7 @@ for i = 1:slength(X.samp)
     B.ct = bg{4};
     B = sort_struct(B,{'chr','pos'});
     if ~all(B.chr==X.bin.chr & B.pos==X.bin.pos), error('Bins don''t match'); end
-    if ~all(B.ct==round(B.ct) & B.ct>=0), error('Expecting integer counts data'); end
+    if ~all(B.ct==round(B.ct) & B.ct>=0), warning('Expecting integer counts data'); end
     X.bin.ct_raw(:,i) = B.ct;
 end
 
