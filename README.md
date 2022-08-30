@@ -36,7 +36,7 @@ bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGrap
 
 **distance_method (string)**: distance metric for *k*-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation")
 
-**clustering_method (string)**: clustering method to utilize ("1"-basic, "2"-scalar_profile, "3"-scalar_profile+fold_profile_onto_itself)
+**clustering_method (string)**: clustering method to utilize ("1": profile, "2": profile+scalar, "3": symmetry_collapsed_profile+scalar)
 
 ## Optional arguments
 **workingdir (string)**: path to the output directory
