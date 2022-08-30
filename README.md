@@ -10,7 +10,7 @@
 | R2018b | 9.5 |
 
 ```MATLAB
-bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGraphs_Heatmap, Outdir, BED_Bin, FC, QNorm, k, distance, clustering_method, Workingdir)
+bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGraphs_Heatmap, outdir, bed_bin, fold_change, normalization_method, k, distance_method, clustering_method, workingdir)
 ```
 
 <br/>
@@ -28,18 +28,18 @@ bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGrap
 
 **BED_Bin (string)**: path to the BED file used for binned bedGraph generation
 
-**FC (string)**: threshold for the fold change over the control during peak calling
+**fold_change (string)**: threshold for the fold change over the control during peak calling
 
-**QNorm (string)**: whether to perform QNorm normalization ("true" or "QNorm": QNorm, "false" or "CPM": CPM)
+**normalization_method (string)**: normalization method to utilize ("QNorm": QNorm, "CPM": CPM)
 
 **k (string)**: number of clusters during *k*-means clustering
 
-**distance (string)**: distance metric for k-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation", "hamming")
+**distance_method (string)**: distance metric for *k*-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation", "hamming")
 
 **clustering_method (string)**: clustering method to utilize ("1"-basic, "2"-scalar_profile, "3"-scalar_profile+fold_profile_onto_itself)
 
 ## Optional arguments
-**Workingdir (string)**: path to the output directory
+**workingdir (string)**: path to the output directory
 
 ## Output files
 **tiles_200_data.mat**: MATLAB variable for the entire dataset
