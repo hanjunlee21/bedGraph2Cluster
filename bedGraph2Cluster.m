@@ -1,4 +1,4 @@
-function bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGraphs_Heatmap, Outdir, BED_Bin, FC, QNorm, k, distance, clustering_method, Workingdir)
+function bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGraphs_Heatmap, outdir, bed_bin, fold_change, normalization_method, k, distance_method, clustering_method, Workingdir)
 %% bedGraph2Cluster
 % e.g., bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph,bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "output", "bed/hg19.200bp.bed", "2", "true", "8", "cosine", "1", "../")
 % 
@@ -7,16 +7,16 @@ function bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster
 %     bedGraphs_Control (string): comma-delimited list of bedGraph files to be used as controls for peak calling  
 %     bedGraphs_Cluster (string): comma-delimited list of bedGraph files to be included during k-means clustering
 %     bedGraphs_Heatmap (string): comma-delimited list of bedGraph files to be included in heatmap
-%     Outdir (string): path to the output directory
-%     BED_Bin (string): path to the BED file used for binned bedGraph generation
-%     FC (string): threshold for the fold change of signal over control during peak calling
-%     QNorm (string): whether to perform QNorm normalization ("true" or "QNorm": QNorm, "false" or "CPM": CPM)
+%     outdir (string): path to the output directory
+%     bed_bin (string): path to the BED file used for binned bedGraph generation
+%     fold_change (string): threshold for the fold change of signal over control during peak calling
+%     normalization_method (string): normalization method to utilize ("QNorm": QNorm, "CPM": CPM)
 %     k (string): number of clusters during k-means clustering
-%     distance (string): distance metric for k-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation", "hamming")
+%     distance_method (string): distance metric for k-means clustering ("sqeuclidean", "cityblock", "cosine", "correlation")
 %     clustering_method (string): clustering method to utilize ("1" = profile, "2" = profile+scalar, "3" = symmetry_collapsed_profile+scalar)
 %
 % Optional arguments 
-%     Workingdir (string): path to the working directory
+%     workingdir (string): path to the working directory
 % 
 %% MIT License
 %
