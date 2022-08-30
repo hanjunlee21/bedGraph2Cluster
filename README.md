@@ -24,9 +24,9 @@ bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGrap
 
 **bedGraphs_Heatmap (string)**: comma-delimited list of bedGraph files to be included in heatmap
 
-**Outdir (string)**: path to the output directory
+**outdir (string)**: path to the output directory
 
-**BED_Bin (string)**: path to the BED file used for binned bedGraph generation
+**bed_bin (string)**: path to the BED file used for binned bedGraph generation
 
 **fold_change (string)**: threshold for the fold change over the control during peak calling
 
