@@ -1,4 +1,15 @@
-function bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster, bedGraphs_Heatmap, outdir, bed_bin, fold_change, normalization_method, k, distance_method, clustering_method, workingdir)
+bedGraphs_Signal="bedgraph/RB.dCDK.bedgraph,bedgraph/RB.WT.bedgraph,bedgraph/RB.S230.bedgraph,bedgraph/RB.S249.bedgraph,bedgraph/RB.T252.bedgraph,bedgraph/RB.T356.bedgraph,bedgraph/RB.T373.bedgraph,bedgraph/RB.S608.bedgraph,bedgraph/RB.S612.bedgraph,bedgraph/RB.S780.bedgraph,bedgraph/RB.S788.bedgraph,bedgraph/RB.S795.bedgraph,bedgraph/RB.S807.bedgraph,bedgraph/RB.S811.bedgraph,bedgraph/RB.T821.bedgraph,bedgraph/RB.T826.bedgraph";
+bedGraphs_Control="bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph,bedgraph/notag.WT.bedgraph,bedgraph/notag.dCDK.bedgraph";
+bedGraphs_Cluster="bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/E2F1.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/c-Jun.shRB1.bedgraph,bedgraph/c-Jun.shSCR.bedgraph,bedgraph/CTCF.shRB1.bedgraph,bedgraph/CTCF.shSCR.bedgraph";
+bedGraphs_Heatmap="bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph,bedgraph/E2F1.bedgraph,bedgraph/c-Jun.shSCR.bedgraph,bedgraph/c-Jun.shRB1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/CTCF.shRB1.bedgraph,bedgraph/RB.GFP.1.bedgraph,bedgraph/RB.GFP.2.bedgraph,bedgraph/RB.A-FOS.1.bedgraph,bedgraph/RB.A-FOS.2.bedgraph,bedgraph/RB.DNDP1.1.bedgraph,bedgraph/RB.DNDP1.2.bedgraph";
+outdir="figure_test";
+BED_Bin="bed/hg19.200bp.bed";
+FC="2";
+QNorm="QNorm";
+k="8";
+distance="cosine";
+clustering_method="1";
+Workingdir="../";
 %% bedGraph2Cluster
 % e.g., bedGraph2Cluster("bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph", "bedgraph/INPUT.WT.bedgraph,bedgraph/INPUT.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph", "bedgraph/RB.WT.bedgraph,bedgraph/RB.dCDK.bedgraph,bedgraph/H3K4me3.WT.bedgraph,bedgraph/H3K4me3.dCDK.bedgraph,bedgraph/H3K4me.WT.bedgraph,bedgraph/H3K4me.dCDK.bedgraph,bedgraph/H3K27ac.WT.bedgraph,bedgraph/H3K27ac.dCDK.bedgraph,bedgraph/E2F1.bedgraph,bedgraph/CTCF.shSCR.bedgraph,bedgraph/c-Jun.shSCR.bedgraph", "output", "bed/hg19.200bp.bed", "2", "true", "8", "cosine", "1", "../")
 % 
@@ -39,16 +50,16 @@ function bedGraph2Cluster(bedGraphs_Signal, bedGraphs_Control, bedGraphs_Cluster
 
 %% Normalization
 warning('off','all')
-if strcmpi(convertCharsToStrings(normalization_method),"true") || strcmpi(convertCharsToStrings(normalization_method),"yes") || strcmpi(convertCharsToStrings(normalization_method),"QNorm")
-    normalization_method = true;
-elseif strcmpi(convertCharsToStrings(normalization_method),"false") || strcmpi(convertCharsToStrings(normalization_method),"no") || strcmpi(convertCharsToStrings(normalization_method),"CPM")
-    normalization_method = false;
+if strcmpi(convertCharsToStrings(QNorm),"true") || strcmpi(convertCharsToStrings(QNorm),"yes") || strcmpi(convertCharsToStrings(QNorm),"QNorm")
+    QNorm = true;
+elseif strcmpi(convertCharsToStrings(QNorm),"false") || strcmpi(convertCharsToStrings(QNorm),"no") || strcmpi(convertCharsToStrings(QNorm),"CPM")
+    QNorm = false;
 else
     error('QNorm has an inappropriate value')
 end
 
-if ~strcmp(convertCharsToStrings(distance_method),"sqeuclidean") && ~strcmp(convertCharsToStrings(distance_method),"cityblock") && ~strcmp(convertCharsToStrings(distance_method),"cosine") ...
-  && ~strcmp(convertCharsToStrings(distance_method),"correlation") && ~strcmp(convertCharsToStrings(distance_method),"hamming")
+if ~strcmp(convertCharsToStrings(distance),"sqeuclidean") && ~strcmp(convertCharsToStrings(distance),"cityblock") && ~strcmp(convertCharsToStrings(distance),"cosine") ...
+  && ~strcmp(convertCharsToStrings(distance),"correlation") && ~strcmp(convertCharsToStrings(distance),"hamming")
     error('distance has to be one of following: sqeuclidean, cityblock, cosine, correlation, hamming')
 end
 
@@ -57,22 +68,22 @@ if ~strcmp(convertCharsToStrings(clustering_method),"1") && ~strcmp(convertChars
 end
 
 if ~exist('Workingdir','var')
-    workingdir = strcat(convertCharsToStrings(pwd),"/");
+    Workingdir = strcat(convertCharsToStrings(pwd),"/");
 else
-    workingdir = strcat(tostringmatrix(workingdir),"/");
+    Workingdir = strcat(tostringmatrix(Workingdir),"/");
 end
 
 %% Reading input files
 % Validating paths
-signal = strcat(workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Signal),',').'));
-control = strcat(workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
-cluster = strcat(workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Cluster),',').'));
-heatmap = strcat(workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Heatmap),',').'));
-bin = strcat(workingdir, tostringmatrix(bed_bin));
-outputdir = strcat(workingdir, tostringmatrix(outdir));
-fold_change = str2double(fold_change);
-if fold_change <= 1
-    error('fold_change has to be greater than one')
+signal = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Signal),',').'));
+control = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Control),',').'));
+cluster = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Cluster),',').'));
+heatmap = strcat(Workingdir, tostringmatrix(strsplit(tostringmatrix(bedGraphs_Heatmap),',').'));
+bin = strcat(Workingdir, tostringmatrix(BED_Bin));
+outputdir = strcat(Workingdir, tostringmatrix(outdir));
+FC = str2double(FC);
+if FC <= 1
+    error('FC has to be greater than one')
 end
 k = str2double(k);
 if k <= 0
@@ -97,8 +108,8 @@ samps_for_median_totct = unique([rsignal;rcontrol;rcluster]);
 median_totct = median(X.samp.totct(samps_for_median_totct));
 X.bin.ct_norm = bsxfun(@rdivide,X.bin.ct_raw,X.samp.totct'/median_totct);
 
-% Normalization method. QNorm is a two parameter normalization method that was inspired by the S3norm method of Xiang et al. https://doi.org/10.1093/nar/gkaa105
-if normalization_method == true
+% QNorm normalization = inspired by the S3norm method of Xiang et al. https://doi.org/10.1093/nar/gkaa105
+if QNorm == true
   fprintf('QNorm: ');
   qnorm_ref_sample = rsignal(1);  % first sample in the list of "signal" bedgraphs will be used as the reference to normalize other samples to
   X.hist.bin = [0;unique(round(geometric_series(1,2000,200)))];
@@ -137,128 +148,11 @@ end
 save(strcat(outputdir,"/tiles_200_data.mat"),'X','-v7.3');
 
 % Peak selection
-thresh=log(fold_change)/log(2); maxgap=3;
+damp=16; thresh=log(FC)/log(2); maxgap=3;
 X.bin.avgct_rb = mean(X.bin.ct(:,rsignal),2);
-pseudocount = round(quantile(X.bin.avgct_rb,1-0.005)); % The algorithm assumes the top 0.5 percent of counts per bin as signals and the bottom 99.5% of counts per bin as potential noise
 X.bin.maxct_rb = max(X.bin.ct(:,rsignal),[],2);
 X.bin.maxct_ctl = max(X.bin.ct(:,rcontrol),[],2);
-X.bin.log2fc = log2((pseudocount+X.bin.maxct_rb)./(pseudocount+X.bin.maxct_ctl));
-bidx = find(X.bin.log2fc>=thresh);
-dat = reorder_struct(keep_fields(X.bin,{'chr','pos'}),bidx); dat.bidx = bidx;
-dat.diff = difff(dat.bidx); dat.samechr = (difff(dat.chr)==0); dat.diff(~dat.samechr)=inf;
-dat.peakst = (dat.diff>maxgap | isnan(dat.diff));
-z = nan(slength(dat),1); dat.st=z; dat.en=z; dat.bidx_first=z; dat.bidx_last=z; dat.orig_npeakbins=z;
-for i=1:slength(dat), if ~dat.peakst(i), continue; end
-    n = find(dat.peakst(i+1:end),1,'first'); if isempty(n), n = slength(dat)-i+1; end
-    j = i+n-1; dat.orig_npeakbins(i) = n;
-    dat.st(i)=dat.pos(i)-99; dat.en(i)=dat.pos(j)+100; dat.bidx_first(i)=dat.bidx(i); dat.bidx_last(i) = dat.bidx(j);
-end
-dat.len = dat.en-dat.st+1; dat.orig_bidx_last = dat.bidx_first+dat.orig_npeakbins-1;
-dat = reorder_struct(dat,dat.peakst); dat=rmfield(dat,{'bidx','diff','samechr','peakst'});
-for i=slength(dat):-1:1
-    a = X.bin.avgct_rb(dat.bidx_first(i):dat.bidx_last(i));
-    [mx,mxi] = max(a);
-    dat.bidx_max(i,1) = mxi+dat.bidx_first(i)-1;
-end
-align_to_max = true;
-width = 10000/200;
-peak = rename_fields(dat,{'bidx_first','bidx_last'},{'bidx_st','bidx_en'});
-if ~align_to_max
-    peak.bidx_mid = round((peak.bidx_st + peak.orig_bidx_last)/2);
-else
-    peak.bidx_mid = peak.bidx_max;
-end
-peak.pos = X.bin.pos(peak.bidx_mid);
-peak.bidx_first = peak.bidx_mid-(width/2); peak.bidx_last = peak.bidx_first + width-1;
-
-% Extract data
-height = slength(X.samp);
-peak.raw_scalar = zeros(slength(peak),slength(X.samp));
-peak.dat_scalar = zeros(slength(peak),slength(X.samp));
-peak.raw = zeros(slength(peak),width*height);
-peak.dat = zeros(slength(peak),width*height);
-for i=1:slength(peak)
-    peak.raw_scalar(i,:) = sum(X.bin.ct_norm(peak.bidx_st(i):peak.bidx_en(i),:),1);
-    peak.dat_scalar(i,:) = sum(X.bin.ct(peak.bidx_st(i):peak.bidx_en(i),:),1);
-    peak.raw(i,:) = reshape(X.bin.ct_norm(peak.bidx_first(i):peak.bidx_last(i),:),height*width,1);
-    peak.dat(i,:) = reshape(X.bin.ct(peak.bidx_first(i):peak.bidx_last(i),:),height*width,1);
-end
-X.peak=peak; X.peak.avgct_rb = nan(slength(X.peak),1);for i=1:slength(X.peak),X.peak.avgct_rb(i)=mean(X.bin.avgct_rb(X.peak.bidx_first(i):X.peak.bidx_last(i)));end
-X.pixel = []; for samp=1:slength(X.samp), X.pixel.samp((samp-1)*50+[1:50],1)=samp; end; X.pixel.dist = repmat([-4900:200:4900]',slength(X.samp),1);
-X.peak = mf2a(X.peak,'pos','chr');
-
-% Clustering
-samps_to_cluster = [rcluster];
-pixels_to_cluster = []; for i=1:length(samps_to_cluster), pixels_to_cluster=[pixels_to_cluster;find(X.pixel.samp==samps_to_cluster(i))]; end
-if strcmp(convertCharsToStrings(clustering_method),"1")
-    % "1" = profile (basic)
-    kmean_input = double(1e-5+X.peak.dat(:,pixels_to_cluster));
-elseif strcmp(convertCharsToStrings(clustering_method),"2")
-    % "2" = profile + scalar
-    scalar = double(1e-5+X.peak.dat_scalar(:,samps_to_cluster));
-    profile = double(1e-5+X.peak.dat(:,pixels_to_cluster));
-    kmean_input = [scalar profile];
-elseif strcmp(convertCharsToStrings(clustering_method),"3")
-    % "3" = symmetry_collapsed_profile + scalar
-    scalar = double(1e-5+X.peak.dat_scalar(:,samps_to_cluster));
-    profile = double(1e-5+X.peak.dat(:,pixels_to_cluster));
-    for i=1:50:size(profile,2),profile(:,i:i+24)=profile(:,i:i+24)+profile(:,i+49:-1:i+25);profile(:,i+49:-1:i+25)=nan;end;profile(:,all(isnan(profile),1))=[];
-    kmean_input = [scalar profile];
-end
-randinit(1234);
-X.peak.(['clust',num2str(k)]) = kmeansd(kmean_input,k,'distance',convertStringsToChars(distance_method),'maxiter',1000);
-
-% Save file with peaks only
-X = rmfield(X,'bin'); X.peak.dat=single(X.peak.dat); X.peak.raw=single(X.peak.raw);
-save(strcat(outputdir,"/tiles_200_data_peak.mat"),'X','-v7.3');
-
-% Heatmap
-samps_to_show = [rheatmap]';
-neighborhood_to_show = 10000; clustfld = ['clust',num2str(k)];
-X.peak = sort_struct(X.peak,{clustfld,'avgct_rb'},[1 -1]);
-figure(1),clf,hold on,ff,viscap=30;colorscheme=2;
-pixels_to_show={}; for i=1:length(samps_to_show), pixels_to_show{i} = find(X.pixel.samp==samps_to_show(i)&abs(X.pixel.dist)<neighborhood_to_show/2); end
-pixels_to_show = cat(1,pixels_to_show{:}); dat = X.peak.dat(:,pixels_to_show)';
-if colorscheme==1      % original colorscheme
-    img=nan(size(dat,1),size(dat,2),3);
-    for row=1:size(dat,1),for rgb=1:3,c=min(1,dat(row,:)/viscap);img(row,:,rgb)=(1-c)*X.samp.clr_bkgd(X.pixel.samp(pixels_to_show(row)),rgb);end,end
-elseif colorscheme==2  % blue-yellow
-    img=convert_1d_colors(dat,parula,0,viscap,[0.8 0.8 0.8]);
-end
-image(img);set(gca,'ydir','rev','position',[0.135 0.025 0.85 0.97]); xlim(0.5+[0 size(dat,2)]);ylim(0.5+[0 size(dat,1)]);
-xlabels_by_group(X.peak.(clustfld));ylabels_by_group(X.samp.name(X.pixel.samp(pixels_to_show)));
-w=12;h=7;set(gcf,'papersize',[w h],'paperposition',[0.2 0.2 w-0.4 h-0.4]);
-print_to_file(strcat(outputdir,"/clustering_heatmap.pdf"),300);
-close all;
-
-% Export peakset to BED files
-chrs = ["chr1";"chr2";"chr3";"chr4";"chr5";"chr6";"chr7";"chr8";"chr9";"chr10";"chr11";"chr12";"chr13";"chr14";"chr15";"chr16";"chr17";"chr18";"chr19";"chr20";"chr21";...
-        "chr22";"chrX";"chrY"];
-fileID = fopen(convertStringsToChars(strcat(outputdir,"/peaks.bed")), 'w');
-for i = 1:size(X.peak.chr,1)
-    fprintf(fileID, '%s\t',chrs(X.peak.chr(i,1),1));
-    fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.st(i,1)+1)));
-    fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.en(i,1))));
-    fprintf(fileID, '%s\t',convertCharsToStrings(num2str(i)));
-    fprintf(fileID, '%s\t',"1000");
-    fprintf(fileID, '%s\n',".");
-end
-fclose(fileID);
-for clusterID = 1:k
-    fileID = fopen(convertStringsToChars(strcat(outputdir,"/peaks.clust",convertCharsToStrings(num2str(k)),".",convertCharsToStrings(num2str(clusterID)),".bed")), 'w');
-    for i = 1:size(X.peak.chr,1)
-        if X.peak.(['clust',num2str(k)])(i,1) == clusterID
-            fprintf(fileID, '%s\t',chrs(X.peak.chr(i,1),1));
-            fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.st(i,1)+1)));
-            fprintf(fileID, '%s\t',convertCharsToStrings(num2str(X.peak.en(i,1))));
-            fprintf(fileID, '%s\t',convertCharsToStrings(num2str(i)));
-            fprintf(fileID, '%s\t',"1000");
-            fprintf(fileID, '%s\n',".");
-        end
-    end
-    fclose(fileID);
-end
-end
+X.bin.log2fc = log2((damp+X.bin.maxct_rb)./(damp+X.bin.maxct_ctl));
 
 function output = tostringmatrix(input)
 if ischarorstring(input)
