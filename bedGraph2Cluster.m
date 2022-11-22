@@ -206,7 +206,7 @@ elseif strcmp(convertCharsToStrings(clustering_method),"3")
     kmean_input = [scalar profile];
 end
 randinit(1234);
-X.peak.(['clust',num2str(k)]) = kmeansd(kmean_input,k,'distance',convertStringsToChars(distance_method),'maxiter',1000);
+X.peak.(['clust',num2str(k)]) = kmeansds(kmean_input,k,'distance',convertStringsToChars(distance_method),'maxiter',1000);
 
 % Save file with peaks only
 X = rmfield(X,'bin'); X.peak.dat=single(X.peak.dat); X.peak.raw=single(X.peak.raw);

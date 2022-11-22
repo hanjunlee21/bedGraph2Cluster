@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="2992540966" file="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/bedGraph2Cluster.prj" location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster" name="bedGraph2Cluster" preferred-package-location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/bedGraph2Cluster/for_redistribution" preferred-package-type="package.type.install" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration file="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/bedGraph2Cluster.prj" location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster" name="bedGraph2Cluster" preferred-package-location="/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.4" preferred-package-type="package.type.install" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>bedGraph2Cluster</param.appname>
     <param.icon />
     <param.icons />
@@ -29,10 +29,10 @@ MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa64:MR/v95/sys/openg
 If it is defined, set it to the following:
 
 ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa64:MR/v95/sys/opengl/lib/glnxa64</param.target.install.notes>
-    <param.intermediate>${PROJECT_ROOT}/5.3</param.intermediate>
-    <param.files.only>${PROJECT_ROOT}/5.3</param.files.only>
-    <param.output>${PROJECT_ROOT}/5.3</param.output>
-    <param.logdir>/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster</param.logdir>
+    <param.intermediate>${PROJECT_ROOT}/5.4</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}/5.4</param.files.only>
+    <param.output>${PROJECT_ROOT}/5.4</param.output>
+    <param.logdir>${PROJECT_ROOT}/5.4</param.logdir>
     <param.enable.clean.build>false</param.enable.clean.build>
     <param.user.defined.mcr.options />
     <param.target.type>subtarget.standalone</param.target.type>
@@ -87,10 +87,10 @@ ${LD_LIBRARY_PATH}:MR/v95/runtime/glnxa64:MR/v95/bin/glnxa64:MR/v95/sys/os/glnxa
     <fileset.package />
     <fileset.depfun />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}/5.3" name="splash.png" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.3/splash.png</file>
-      <file location="${PROJECT_ROOT}/5.3" name="readme.txt" optional="true">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.3/readme.txt</file>
-      <file location="${PROJECT_ROOT}/5.3" name="run_bedGraph2Cluster.sh" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.3/run_bedGraph2Cluster.sh</file>
-      <file location="${PROJECT_ROOT}/5.3" name="bedGraph2Cluster" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.3/bedGraph2Cluster</file>
+      <file location="${PROJECT_ROOT}/5.4" name="run_bedGraph2Cluster.sh" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.4/run_bedGraph2Cluster.sh</file>
+      <file location="${PROJECT_ROOT}/5.4" name="splash.png" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.4/splash.png</file>
+      <file location="${PROJECT_ROOT}/5.4" name="bedGraph2Cluster" optional="false">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.4/bedGraph2Cluster</file>
+      <file location="${PROJECT_ROOT}/5.4" name="readme.txt" optional="true">/media/hanjun/Hanjun_Lee_Book/Lawrence/STAR_Protocols/bedGraph2Cluster/5.4/readme.txt</file>
     </build-deliverables>
     <workflow />
     <matlab>
